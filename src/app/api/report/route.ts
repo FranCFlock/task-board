@@ -6,7 +6,8 @@ import { computeHealth, computeMetrics } from "@/lib/metrics";
 import { REPORT_SYSTEM_PROMPT, buildReportUserPrompt } from "@/lib/report-prompt";
 import { buildReportSummary, type ReportSummary } from "@/lib/report-summary";
 import { renderTemplateReport } from "@/lib/report-template";
-import type { ReportResponse } from "@/lib/types";
+import { parseTasks } from "@/lib/tasks";
+import type { ReportResponse, Task } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +39,21 @@ async function generateAiReport(summary: ReportSummary, apiKey: string): Promise
   return text || null;
 }
 
-export async function POST() {
+/** Optional body: { tasks } with this browser's edited task list. Without it, the demo tasks are used. */
+async function readTasks(request: Request, milestoneIds: string[]): Promise<Task[] | null | "invalid"> {
+  const body: unknown = await request.json().catch(() => null);
+  if (typeof body !== "object" || body === null || !("tasks" in body)) return null;
+  return parseTasks(body.tasks, milestoneIds) ?? "invalid";
+}
+
+export async function POST(request: Request) {
   const today = todayISO();
-  const data = getProjectData(today);
+  const demo = getProjectData(today);
+  const tasks = await readTasks(request, demo.project.milestones.map((m) => m.id));
+  if (tasks === "invalid") {
+    return NextResponse.json({ error: "La lista de tareas no es válida." }, { status: 400 });
+  }
+  const data = tasks ? { ...demo, tasks } : demo;
   const metrics = computeMetrics(data, today);
   const summary = buildReportSummary(data, metrics, computeHealth(metrics));
 

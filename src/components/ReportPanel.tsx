@@ -1,23 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ISODate, ReportResponse } from "@/lib/types";
+import Modal from "@/components/Modal";
+import { useToast } from "@/components/Toast";
+import { ghostButton, primaryButton } from "@/components/ui";
+import type { ISODate, ReportResponse, Task } from "@/lib/types";
 
 type State =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "done"; report: ReportResponse; ms: number }
   | { status: "error" };
-
-const TOAST_MS = 1900;
-
-const ghostButton =
-  "inline-flex items-center gap-[7px] rounded-[9px] border border-line-strong bg-panel px-4 py-[9px] text-[13px] font-semibold text-ink transition-colors hover:bg-surface active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
-const primaryButton =
-  "inline-flex items-center gap-[7px] rounded-[9px] bg-brand px-4 py-[9px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 
 // Markdown styled with design-system tokens (no typography plugin).
 const markdownComponents: Components = {
@@ -45,46 +40,40 @@ const markdownComponents: Components = {
   code: ({ children }) => <code className="text-mono rounded-[8px] bg-surface px-1">{children}</code>,
 };
 
-export default function ReportPanel({ today }: { today: ISODate }) {
+/**
+ * "Generar status report" button + panel. Sends the current tasks (which may include this
+ * browser's edits) so the report matches what the dashboard shows.
+ */
+export default function ReportPanel({ today, tasks }: { today: ISODate; tasks: Task[] }) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<State>({ status: "idle" });
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const showToast = (message: string) => {
-    setToast(message);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), TOAST_MS);
-  };
+  const { show: showToast, toast } = useToast();
+  // Tasks the current report was generated from; a different list means the report is stale.
+  const reportedTasks = useRef<Task[] | null>(null);
 
   const generate = useCallback(async () => {
     setState({ status: "loading" });
+    reportedTasks.current = tasks;
     const start = performance.now();
     try {
-      const res = await fetch("/api/report", { method: "POST" });
+      const res = await fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tasks }),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const report = (await res.json()) as ReportResponse;
       setState({ status: "done", report, ms: performance.now() - start });
     } catch {
       setState({ status: "error" });
     }
-  }, []);
+  }, [tasks]);
 
   const openPanel = () => {
     setOpen(true);
-    if (state.status !== "done") void generate();
+    if (state.status !== "done" || reportedTasks.current !== tasks) void generate();
   };
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  const close = useCallback(() => setOpen(false), []);
 
   const markdown = state.status === "done" ? state.report.markdown : "";
 
@@ -129,100 +118,67 @@ export default function ReportPanel({ today }: { today: ISODate }) {
         Generar status report
       </button>
 
-      {open &&
-        createPortal(
-        <div
-          className="print-root fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(48,8,64,.5)] p-4 backdrop-blur-[2px] sm:p-8"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="report-title"
-            className="report-pop w-full max-w-3xl rounded-[16px] bg-panel text-ink shadow-overlay"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <header className="flex items-center gap-3 border-b border-line px-5 py-4 print:hidden">
-              <h2 id="report-title" className="t-card-title text-brand-dark">
-                Status report
-              </h2>
-              {state.status === "done" && <SourceBadge report={state.report} ms={state.ms} />}
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Cerrar"
-                className="ml-auto grid size-[30px] place-items-center rounded-[6px] text-ink-faint transition-colors hover:bg-brand-soft hover:text-brand"
-              >
-                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" aria-hidden>
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-              </button>
-            </header>
-
-            <div className="px-5 py-4 text-[14px]">
-              {state.status === "loading" && (
-                <div className="flex flex-col items-center gap-3 py-16 text-center">
-                  <span className="size-8 animate-spin rounded-full border-[3px] border-brand-soft border-t-brand" />
-                  <p className="font-semibold text-brand-dark">Generando el status report…</p>
-                  <p className="t-secondary">Puede tardar unos segundos.</p>
-                </div>
-              )}
-              {state.status === "error" && (
-                <div className="flex flex-col items-center gap-3 py-16 text-center">
-                  <p className="font-semibold text-brand-dark">No se pudo generar el reporte.</p>
-                  <button type="button" onClick={generate} className={primaryButton}>
-                    Reintentar
-                  </button>
-                </div>
-              )}
-              {state.status === "done" && (
-                <article>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                    {markdown}
-                  </ReactMarkdown>
-                </article>
-              )}
-            </div>
-
-            <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4 print:hidden">
-              <button type="button" onClick={generate} disabled={state.status === "loading"} className={ghostButton}>
-                Regenerar
-              </button>
-              <button type="button" onClick={copy} disabled={state.status !== "done"} className={ghostButton}>
-                Copiar
-              </button>
-              <button
-                type="button"
-                onClick={print}
-                disabled={state.status !== "done"}
-                className={ghostButton}
-                title="Abre el diálogo de impresión; elegí «Guardar como PDF» para obtener el archivo"
-              >
-                Imprimir / PDF
-              </button>
-              <button
-                type="button"
-                onClick={download}
-                disabled={state.status !== "done"}
-                className={primaryButton}
-                title="Descarga el reporte como archivo Markdown (.md)"
-              >
-                Descargar
-              </button>
-            </footer>
+      <Modal
+        open={open}
+        onClose={close}
+        title="Status report"
+        size="lg"
+        overlayClassName="print-root"
+        headerExtra={state.status === "done" && <SourceBadge report={state.report} ms={state.ms} />}
+        footer={
+          <>
+            <button type="button" onClick={generate} disabled={state.status === "loading"} className={ghostButton}>
+              Regenerar
+            </button>
+            <button type="button" onClick={copy} disabled={state.status !== "done"} className={ghostButton}>
+              Copiar
+            </button>
+            <button
+              type="button"
+              onClick={print}
+              disabled={state.status !== "done"}
+              className={ghostButton}
+              title="Abre el diálogo de impresión; elegí «Guardar como PDF» para obtener el archivo"
+            >
+              Imprimir / PDF
+            </button>
+            <button
+              type="button"
+              onClick={download}
+              disabled={state.status !== "done"}
+              className={primaryButton}
+              title="Descarga el reporte como archivo Markdown (.md)"
+            >
+              Descargar
+            </button>
+          </>
+        }
+      >
+        {state.status === "loading" && (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <span className="size-8 animate-spin rounded-full border-[3px] border-brand-soft border-t-brand" />
+            <p className="font-semibold text-brand-dark">Generando el status report…</p>
+            <p className="t-secondary">Puede tardar unos segundos.</p>
           </div>
-        </div>,
-          document.body,
         )}
+        {state.status === "error" && (
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <p className="font-semibold text-brand-dark">No se pudo generar el reporte.</p>
+            <button type="button" onClick={generate} className={primaryButton}>
+              Reintentar
+            </button>
+          </div>
+        )}
+        {state.status === "done" && (
+          <article>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              {markdown}
+            </ReactMarkdown>
+          </article>
+        )}
+      </Modal>
 
-      {toast && (
-        <div
-          role="status"
-          className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-[10px] bg-brand-dark px-4 py-[10px] text-[13px] font-semibold text-white shadow-overlay print:hidden"
-        >
-          {toast}
-        </div>
-      )}
+      {toast}
     </>
   );
 }

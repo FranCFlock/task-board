@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+export const TAB_IDS = ["resumen", "tareas", "pendientes", "relevamiento"] as const;
+export type TabId = (typeof TAB_IDS)[number];
+
 export interface TabItem {
   id: string;
   label: string;

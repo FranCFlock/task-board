@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import StatusChip from "@/components/StatusChip";
+import { fieldLabel, ghostButton, iconButton, primaryButton } from "@/components/ui";
 import { daysBetween, formatDate } from "@/lib/dates";
 import {
   PRIORITY_LABEL,
@@ -14,7 +15,6 @@ import type { ISODate, Milestone, Priority, Task, TaskStatus } from "@/lib/types
 const PRIORITIES: Priority[] = ["high", "medium", "low"];
 const ALL = "all";
 
-const fieldLabel = "text-[11px] font-bold uppercase tracking-[.5px] text-ink-faint";
 const selectClass =
   "rounded-[8px] border border-line-strong bg-panel px-[11px] py-[9px] text-[13px] text-ink focus:border-brand focus:outline-2 focus:outline-brand-soft";
 
@@ -26,11 +26,17 @@ export default function TasksTable({
   tasks,
   milestones,
   today,
+  onNew,
+  onEdit,
+  onDelete,
 }: {
   tasks: Task[];
   milestones: Milestone[];
   /** Passed from the server so server and client agree on what is overdue. */
   today: ISODate;
+  onNew: () => void;
+  onEdit: (task: Task) => void;
+  onDelete: (task: Task) => void;
 }) {
   const [status, setStatus] = useState<TaskStatus | typeof ALL>(ALL);
   const [owner, setOwner] = useState<string>(ALL);
@@ -106,13 +112,14 @@ export default function TasksTable({
           Solo vencidas
         </label>
         <div className="flex-1" />
-        <button
-          type="button"
-          onClick={clearFilters}
-          disabled={!hasFilters}
-          className="rounded-[9px] border border-line-strong bg-panel px-4 py-[9px] text-[13px] font-semibold text-ink transition-colors hover:bg-surface active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <button type="button" onClick={clearFilters} disabled={!hasFilters} className={ghostButton}>
           Limpiar filtros
+        </button>
+        <button type="button" onClick={onNew} className={primaryButton}>
+          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" aria-hidden>
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Nueva tarea
         </button>
       </div>
 
@@ -121,7 +128,7 @@ export default function TasksTable({
       </p>
 
       <div className="overflow-x-auto rounded-card border border-line bg-panel shadow-card">
-        <table className="w-full min-w-[760px] border-collapse text-left text-[13px]">
+        <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
           <thead>
             <tr className="border-b-2 border-line-strong bg-surface">
               {["Tarea", "Responsable", "Estado", "Prioridad", "Hito", "Vence"].map((h) => (
@@ -129,6 +136,9 @@ export default function TasksTable({
                   {h}
                 </th>
               ))}
+              <th className="px-4 py-3">
+                <span className="sr-only">Acciones</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -171,13 +181,40 @@ export default function TasksTable({
                       </div>
                     )}
                   </td>
+                  <td className="px-2 py-2">
+                    <div className="flex justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onEdit(t)}
+                        className={iconButton}
+                        aria-label={`Editar "${t.title}"`}
+                        title="Editar"
+                      >
+                        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                          <path d="M4 20h4L19 9l-4-4L4 16z" />
+                          <path d="M13.5 6.5l4 4" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(t)}
+                        className={iconButton}
+                        aria-label={`Eliminar "${t.title}"`}
+                        title="Eliminar"
+                      >
+                        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                          <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             })}
             {visible.length === 0 && (
               <tr>
-                <td colSpan={6} className="t-secondary px-4 py-8 text-center">
-                  No hay tareas que coincidan con los filtros.
+                <td colSpan={7} className="t-secondary px-4 py-8 text-center">
+                  {tasks.length === 0 ? "Todavía no hay tareas. Creá la primera con «Nueva tarea»." : "No hay tareas que coincidan con los filtros."}
                 </td>
               </tr>
             )}
