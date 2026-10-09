@@ -99,7 +99,6 @@ La especificación funcional (modelo de datos, KPIs, reglas del semáforo y cont
 - **Integraciones reales** con Jira, Trello o Azure DevOps para las tareas, y con las minutas de reunión para los pendientes.
 - **Persistencia compartida** (base de datos) para que los cambios de tareas se vean en todos los navegadores, y **ABM de pendientes, ítems relevados e hitos**.
 - **Login y usuarios**, con vistas por rol (PM, sponsor, equipo) y **multi-proyecto / multi-cliente**.
-- **Fecha real de cierre** de cada tarea, para que "logros del período" no dependa de la fecha de vencimiento.
 - **Historial de reportes** y envío programado por mail o Teams.
 - **Notificaciones** ante cambios de semáforo o vencimientos.
 - **Tema oscuro** (los tokens ya lo soportan) y tests automatizados de métricas y semáforo.

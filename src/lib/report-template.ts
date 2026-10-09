@@ -36,7 +36,7 @@ export function renderTemplateReport(s: ReportSummary): string {
   const achievements = [
     ...doneMilestones.map((m) => `Hito cumplido: **${m.name}**`),
     ...cap(
-      s.recentlyDone.map((t) => `Completada: ${t.title} (${t.owner})`),
+      s.recentlyDone.map((t) => `Completada el ${formatDate(t.completedAt)}: ${t.title} (${t.owner})`),
       "tareas completadas más",
     ),
     ...cap(

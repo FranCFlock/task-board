@@ -43,13 +43,18 @@ export default function TaskForm({ task, milestones, owners, today, onSave, onCl
   const ownersListId = useId();
 
   const set = <K extends keyof TaskDraft>(key: K, value: TaskDraft[K]) => {
-    setDraft((d) => ({ ...d, [key]: value }));
+    setDraft((d) => {
+      const next = { ...d, [key]: value };
+      // A task that just became done was finished today, unless it already has a date.
+      if (key === "status" && value === "done" && !next.completedAt) next.completedAt = today;
+      return next;
+    });
     setErrors((e) => ({ ...e, [key]: undefined }));
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const found = validateTask(draft, milestones.map((m) => m.id));
+    const found = validateTask(draft, milestones.map((m) => m.id), today);
     if (Object.keys(found).length > 0) {
       setErrors(found);
       return;
@@ -135,6 +140,18 @@ export default function TaskForm({ task, milestones, owners, today, onSave, onCl
             ))}
           </select>
         </Field>
+
+        {draft.status === "done" && (
+          <Field label="Completada el" error={errors.completedAt} className="sm:col-span-2">
+            <input
+              type="date"
+              className={inputClass}
+              value={draft.completedAt ?? ""}
+              max={today}
+              onChange={(e) => set("completedAt", e.target.value)}
+            />
+          </Field>
+        )}
 
         {draft.status === "blocked" && (
           <Field label="Motivo del bloqueo" error={errors.blockedReason} className="sm:col-span-2">

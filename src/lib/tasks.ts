@@ -15,16 +15,21 @@ function isISODate(value: string): value is ISODate {
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
-/** Trims text and drops the blocked reason unless the task is blocked. */
+/** Trims text; drops the blocked reason unless blocked and the completion date unless done. */
 export function normalizeTask<T extends TaskDraft>(task: T): T {
-  const { blockedReason, ...rest } = task;
+  const { blockedReason, completedAt, ...rest } = task;
   const normalized = { ...rest, title: task.title.trim(), owner: task.owner.trim() } as T;
   if (task.status === "blocked") normalized.blockedReason = (blockedReason ?? "").trim();
+  if (task.status === "done" && completedAt) normalized.completedAt = completedAt;
   return normalized;
 }
 
-/** Form validation. Messages are user-facing (Spanish). */
-export function validateTask(draft: TaskDraft, milestoneIds: string[]): TaskErrors {
+/**
+ * Validation with user-facing (Spanish) messages. Pass `today` from the form to also require
+ * the completion date of done tasks and reject future dates; stored or received data omits it,
+ * because older saved tasks have no completion date.
+ */
+export function validateTask(draft: TaskDraft, milestoneIds: string[], today?: ISODate): TaskErrors {
   const t = normalizeTask(draft);
   const errors: TaskErrors = {};
   if (!t.title) errors.title = "Ingresá un título.";
@@ -35,6 +40,12 @@ export function validateTask(draft: TaskDraft, milestoneIds: string[]): TaskErro
   if (!PRIORITIES.includes(t.priority)) errors.priority = "Elegí una prioridad.";
   if (!isISODate(t.dueDate)) errors.dueDate = "Ingresá una fecha válida.";
   if (!milestoneIds.includes(t.milestoneId)) errors.milestoneId = "Elegí un hito.";
+  if (t.status === "done") {
+    if (!t.completedAt) {
+      if (today !== undefined) errors.completedAt = "Ingresá la fecha de cierre.";
+    } else if (!isISODate(t.completedAt)) errors.completedAt = "Ingresá una fecha válida.";
+    else if (today !== undefined && t.completedAt > today) errors.completedAt = "No puede ser una fecha futura.";
+  }
   if (t.status === "blocked") {
     if (!t.blockedReason) errors.blockedReason = "Contá por qué está bloqueada.";
     else if (t.blockedReason.length > TASK_LIMITS.blockedReason) {
@@ -58,6 +69,7 @@ export function parseTasks(value: unknown, milestoneIds: string[]): Task[] | nul
     const fields = ["id", "title", "owner", "status", "priority", "dueDate", "milestoneId"] as const;
     if (fields.some((f) => typeof raw[f] !== "string")) return null;
     if (raw.blockedReason !== undefined && typeof raw.blockedReason !== "string") return null;
+    if (raw.completedAt !== undefined && typeof raw.completedAt !== "string") return null;
 
     const task = normalizeTask({
       id: raw.id as string,
@@ -68,6 +80,7 @@ export function parseTasks(value: unknown, milestoneIds: string[]): Task[] | nul
       dueDate: raw.dueDate as string,
       milestoneId: raw.milestoneId as string,
       blockedReason: raw.blockedReason as string | undefined,
+      completedAt: raw.completedAt as string | undefined,
     });
     if (!task.id || ids.has(task.id) || Object.keys(validateTask(task, milestoneIds)).length > 0) return null;
     ids.add(task.id);

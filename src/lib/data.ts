@@ -20,7 +20,11 @@ export function getProjectData(today: ISODate = todayISO()): ProjectData {
       endDate: shift(project.endDate),
       milestones: project.milestones.map((m) => ({ ...m, dueDate: shift(m.dueDate) })),
     },
-    tasks: tasks.map((t) => ({ ...t, dueDate: shift(t.dueDate) })),
+    tasks: tasks.map((t) => ({
+      ...t,
+      dueDate: shift(t.dueDate),
+      ...(t.completedAt && { completedAt: shift(t.completedAt) }),
+    })),
     actionItems: actionItems.map((a) => ({
       ...a,
       meetingDate: shift(a.meetingDate),

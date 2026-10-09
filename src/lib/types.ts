@@ -34,6 +34,8 @@ export interface Task {
   dueDate: ISODate;
   milestoneId: string;
   blockedReason?: string;
+  /** Day the task was finished. Only for status "done"; older saved tasks may not have it. */
+  completedAt?: ISODate;
 }
 
 /** Pending item that came out of a meeting. */

@@ -180,6 +180,11 @@ export default function TasksTable({
                         {overdueLabel(daysBetween(t.dueDate, today))}
                       </div>
                     )}
+                    {t.status === "done" && t.completedAt && (
+                      <div className="text-[11px] font-bold" style={{ color: "var(--state-completed-fg)" }}>
+                        Completada el {formatDate(t.completedAt)}
+                      </div>
+                    )}
                   </td>
                   <td className="px-2 py-2">
                     <div className="flex justify-end gap-1">

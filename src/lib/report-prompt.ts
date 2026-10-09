@@ -27,7 +27,7 @@ Glosario de valores del JSON:
 - milestones[].state: done = cumplido, overdue = vencido, at_risk = en riesgo, on_track = en curso.
 - Estados de tarea: todo = pendiente, in_progress = en progreso, blocked = bloqueada, done = completada.
 - impact: high = alto, medium = medio, low = bajo.
-- recentlyDone: tareas completadas cuyo vencimiento cae en el período (desde periodStart hasta today).
+- recentlyDone: tareas completadas en el período (completedAt entre periodStart y today).
 - upcomingTasks: tareas abiertas que vencen en los próximos 7 días.`;
 
 export function buildReportUserPrompt(summary: ReportSummary): string {

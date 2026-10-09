@@ -18,7 +18,7 @@ export interface ReportSummary {
   progress: { pct: number; done: number; total: number; byStatus: Record<TaskStatus, number> };
   milestones: { name: string; dueDate: ISODate; state: MilestoneState; done: number; total: number }[];
   nextMilestone: { name: string; dueDate: ISODate; daysLeft: number; done: number; total: number } | null;
-  recentlyDone: { title: string; owner: string; dueDate: ISODate }[];
+  recentlyDone: { title: string; owner: string; completedAt: ISODate }[];
   closedActionItems: { description: string; owner: string }[];
   upcomingTasks: { title: string; owner: string; dueDate: ISODate; status: TaskStatus }[];
   blockedTasks: { title: string; owner: string; reason: string; dueDate: ISODate }[];
@@ -61,9 +61,9 @@ export function buildReportSummary(data: ProjectData, m: Metrics, health: Health
         }
       : null,
     recentlyDone: tasks
-      .filter((t) => t.status === "done" && t.dueDate >= periodStart && t.dueDate <= today)
-      .sort(byDueDate)
-      .map((t) => ({ title: t.title, owner: t.owner, dueDate: t.dueDate })),
+      .flatMap((t) => (t.status === "done" ? [{ title: t.title, owner: t.owner, completedAt: t.completedAt ?? t.dueDate }] : []))
+      .filter((t) => t.completedAt >= periodStart && t.completedAt <= today)
+      .sort((a, b) => a.completedAt.localeCompare(b.completedAt)),
     closedActionItems: actionItems
       .filter((a) => a.status === "done" && a.meetingDate >= periodStart)
       .map((a) => ({ description: a.description, owner: a.owner })),

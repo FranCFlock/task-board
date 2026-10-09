@@ -25,7 +25,7 @@ Definido en [`src/lib/types.ts`](../src/lib/types.ts). Fechas en ISO `AAAA-MM-DD
 |---|---|
 | **Project** | `id`, `name`, `client`, `startDate`, `endDate`, `milestones: Milestone[]` |
 | **Milestone** | `id`, `name`, `dueDate`, `status: "pending" \| "done"` |
-| **Task** | `id`, `title`, `owner`, `status: "todo" \| "in_progress" \| "blocked" \| "done"`, `priority: "low" \| "medium" \| "high"`, `dueDate`, `milestoneId`, `blockedReason?` |
+| **Task** | `id`, `title`, `owner`, `status: "todo" \| "in_progress" \| "blocked" \| "done"`, `priority: "low" \| "medium" \| "high"`, `dueDate`, `milestoneId`, `blockedReason?`, `completedAt?` (fecha de cierre, solo si está completada) |
 | **ActionItem** (pendiente de reunión) | `id`, `description`, `owner`, `sourceMeeting`, `meetingDate`, `dueDate`, `status: "open" \| "done"` |
 | **Finding** (ítem relevado) | `id`, `type: "requirement" \| "finding" \| "risk"`, `description`, `impact: "low" \| "medium" \| "high"`, `status: "open" \| "mitigated" \| "closed"`, `owner?` |
 
@@ -76,8 +76,8 @@ Los umbrales (`RED_OVERDUE_PCT`, `YELLOW_OVERDUE_PCT`) son constantes en `metric
 ### 6.1 ABM de tareas
 
 - **Alta:** botón "Nueva tarea" en la barra de filtros. **Edición** y **baja:** íconos al final de cada fila; la baja pide confirmación.
-- **Formulario** (modal): título, responsable (con sugerencias de los existentes, o uno nuevo), vence, estado, prioridad, hito y, si el estado es "Bloqueada", el motivo.
-- **Validación** ([`src/lib/tasks.ts`](../src/lib/tasks.ts)): título (máx. 120), responsable (máx. 60), fecha válida y hito existente son obligatorios; el motivo es obligatorio si la tarea está bloqueada (máx. 300) y se descarta si no lo está.
+- **Formulario** (modal): título, responsable (con sugerencias de los existentes, o uno nuevo), vence, estado, prioridad, hito y, según el estado, el motivo del bloqueo ("Bloqueada") o la fecha de cierre ("Completada", que se completa sola con la fecha de hoy y se puede ajustar).
+- **Validación** ([`src/lib/tasks.ts`](../src/lib/tasks.ts)): título (máx. 120), responsable (máx. 60), fecha válida y hito existente son obligatorios; el motivo es obligatorio si la tarea está bloqueada (máx. 300) y se descarta si no lo está; la fecha de cierre es obligatoria si está completada, no puede ser futura y se descarta si no lo está.
 - **Persistencia:** solo en el navegador (`localStorage`, clave `status-board:tasks:v1`). No se comparte entre navegadores ni dispositivos. Si lo guardado no es válido, se ignora y se muestran los datos de demo.
 - Con cambios guardados, un aviso lo indica y ofrece **"Restablecer datos de demo"** (con confirmación).
 - KPIs, semáforo, hitos y contador de la pestaña se recalculan al instante. Las fechas de las tareas editadas quedan fijas (no se corren con el día, a diferencia de las de demo).
@@ -100,7 +100,7 @@ Markdown en español, tono ejecutivo, de una página como máximo:
 4. **Riesgos y bloqueos:** tareas bloqueadas con su motivo, tareas vencidas y riesgos abiertos.
 5. **Decisiones o ayuda requerida:** qué destrabar, pendientes vencidos para cerrar y hallazgos de impacto alto para definir.
 
-El período son los últimos 14 días. Como las tareas no guardan su fecha de cierre, "completadas en el período" se aproxima con las tareas `done` cuyo vencimiento cae en el período.
+El período son los últimos 14 días. "Completadas en el período" son las tareas `done` cuya fecha de cierre (`completedAt`) cae en ese lapso; si una tarea guardada en el navegador no la tiene (datos anteriores a esta función), se usa su fecha de vencimiento.
 
 ### Generación
 

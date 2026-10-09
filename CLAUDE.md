@@ -69,7 +69,7 @@ docs/SPEC.md
 - **Project**: `id`, `name`, `client`, `startDate`, `endDate`, `milestones: Milestone[]`
 - **Milestone**: `id`, `name`, `dueDate`, `status: "pending" | "done"`
 - **Task**: `id`, `title`, `owner`, `status: "todo" | "in_progress" | "blocked" | "done"`,
-  `priority: "low" | "medium" | "high"`, `dueDate`, `milestoneId`, `blockedReason?`
+  `priority: "low" | "medium" | "high"`, `dueDate`, `milestoneId`, `blockedReason?`, `completedAt?`
 - **ActionItem** (pendiente de reunión): `id`, `description`, `owner`, `sourceMeeting`,
   `meetingDate`, `dueDate`, `status: "open" | "done"`
 - **Finding** (ítem relevado): `id`, `type: "requirement" | "finding" | "risk"`, `description`,
