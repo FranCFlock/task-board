@@ -22,6 +22,7 @@ genera el status report ejecutivo con un clic.
 ## Stack
 - Next.js (App Router) + TypeScript + Tailwind CSS
 - Recharts para gráficos
+- Vitest para tests unitarios (`src/**/*.test.ts`)
 - `@anthropic-ai/sdk` para generar el reporte
 - Sin base de datos: datos en `src/data/proyecto-demo.json` (las tareas editadas se guardan en el navegador)
 - Deploy: Vercel
@@ -31,6 +32,7 @@ genera el status report ejecutivo con un clic.
 npm run dev     # desarrollo en localhost:3000
 npm run build   # verificar antes de cada commit
 npm run lint
+npm test         # tests unitarios (Vitest); correr junto con build y lint antes de cada commit
 ```
 
 ## Variables de entorno

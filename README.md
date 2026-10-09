@@ -51,6 +51,7 @@ Otros comandos:
 npm run build    # build de producción
 npm run start    # sirve el build
 npm run lint
+npm test         # tests unitarios (Vitest)
 ```
 
 ### Activar el reporte con IA (opcional)
@@ -77,6 +78,7 @@ La key se obtiene en la [Claude Console](https://platform.claude.com) (Settings 
 ## Cómo está hecho
 
 - **Next.js 15** (App Router) + **TypeScript** + **Tailwind CSS 4**
+- **Vitest** para los tests unitarios
 - **Recharts** para el gráfico; **react-markdown** + **remark-gfm** para mostrar el reporte
 - **@anthropic-ai/sdk** para la generación con IA (solo del lado del servidor; la key nunca llega al navegador)
 - Sin base de datos: los datos de prueba están en [`src/data/proyecto-demo.json`](src/data/proyecto-demo.json). Las fechas se corren respecto del día actual, así que siempre hay tareas vencidas y próximas. Las tareas editadas se guardan en el `localStorage` del navegador.
@@ -105,4 +107,4 @@ La especificación funcional (modelo de datos, KPIs, reglas del semáforo y cont
 - **Login y usuarios**, con vistas por rol (PM, sponsor, equipo) y **multi-proyecto / multi-cliente**.
 - **Historial de reportes** y envío programado por mail o Teams.
 - **Notificaciones** ante cambios de semáforo o vencimientos.
-- **Tests automatizados** de métricas, semáforo y validación de tareas.
+- **Tests de interfaz y de punta a punta** (por ejemplo con Playwright); hoy los tests unitarios cubren la lógica y el endpoint.

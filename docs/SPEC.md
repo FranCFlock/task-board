@@ -126,3 +126,22 @@ Cada reporte con IA tiene costo, y el endpoint es público. Por eso las llamadas
 - Las llamadas a la IA tienen límite de uso por IP y global (ver "Límite de uso") y se recomienda fijar un límite de gasto mensual en la Claude Console.
 - `.env.local` está en `.gitignore`; el repo solo incluye `.env.example`.
 - El Markdown del reporte se renderiza con `react-markdown`, que no ejecuta HTML embebido.
+
+## 9. Pruebas
+
+`npm test` corre los tests unitarios con [Vitest](https://vitest.dev) (136 casos, unos 2 segundos). No usan red ni gastan crédito: el SDK de Anthropic se reemplaza por un doble en los tests del endpoint.
+
+| Archivo | Qué verifica |
+|---|---|
+| `lib/dates.test.ts` | "hoy" en horario de Argentina (incluidos los bordes de UTC), `daysBetween`, `addDays`, formato de fechas |
+| `lib/metrics.test.ts` | KPIs, estado de cada hito y semáforo: umbrales de 10% y 20%, motivos y su orden, singular y plural |
+| `lib/data.test.ts` | el corrimiento de fechas de los datos de demo y que el proyecto sea **siempre amarillo**, con los mismos motivos, sea cual sea el día |
+| `lib/tasks.test.ts` | validación y normalización de tareas, y `parseTasks` con datos corruptos o malintencionados |
+| `lib/report-summary.test.ts` | qué entra en cada sección del reporte (período, próximos 7 días, riesgos, hallazgos) |
+| `lib/report-template.test.ts` | estructura del reporte, estados vacíos y los topes para que entre en una página |
+| `lib/rate-limit.test.ts` | ventana deslizante, límite por IP y global, memoria acotada |
+| `app/api/report/route.test.ts` | el endpoint: respaldo a la plantilla ante cualquier falla de la IA, límite de uso, errores 400 y 413, y que las tareas editadas lleguen al reporte y al prompt |
+
+Los tests se validaron con *mutaciones*: se introdujeron a propósito 8 errores en el código (un umbral mal puesto, la zona horaria, el límite de uso, etc.) y cada uno hizo fallar al menos un test.
+
+No hay tests de interfaz ni de punta a punta; esos flujos (alta, edición y baja de tareas, tema oscuro, celular) se verificaron manualmente con un navegador automatizado.
