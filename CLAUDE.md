@@ -95,13 +95,11 @@ generarse relativos a la fecha actual para que haya vencidas y próximas.
 
 ## Datos de prueba
 Un proyecto ficticio realista (ej.: "Migración del portal de clientes" para un banco o retail):
-- 4 hitos (1 cumplido, el resto en curso)
-- ~33 tareas, 6 responsables, mezcla de estados (completadas, en progreso, pendientes)
-- ~10 action items de 3 reuniones distintas, la mayoría cerrados
-- ~12 ítems relevados (requerimientos, hallazgos y riesgos; queda al menos 1 hallazgo de impacto alto abierto)
-El proyecto queda en **verde** con los datos por defecto: sin tareas vencidas ni bloqueadas, sin pendientes vencidos
-y con avance reciente (tareas cerradas en los últimos 14 días). Para mostrar un desvío en la demo, crear o editar tareas
-desde el tablero (por ejemplo, una bloqueada o vencida) y ver cómo cambia el semáforo.
+- 4 hitos (1 cumplido, 1 en riesgo)
+- ~33 tareas, 5–6 responsables, mezcla de estados, ~15% vencidas, 2–3 bloqueadas con motivo
+- ~10 action items de 3 reuniones distintas
+- ~12 ítems relevados (requerimientos, hallazgos y 3–4 riesgos, al menos 1 de impacto alto abierto)
+El proyecto debe quedar en **amarillo** con los datos por defecto (es lo más interesante para la demo).
 
 ## KPIs (`src/lib/metrics.ts`)
 - % de avance = tareas `done` / total
@@ -119,7 +117,7 @@ Devuelve `{ level: "green" | "yellow" | "red", reasons: string[] }` (motivos en 
 - **Amarillo**: > 10% de tareas abiertas vencidas, o al menos una tarea bloqueada,
   o pendientes de reunión vencidos.
 - **Verde**: el resto.
-(Los datos de demo están ajustados para que el default quede en verde.)
+(Ajustar datos o umbrales para que el default quede en amarillo.)
 
 ## Status report (`POST /api/report`)
 Salida en Markdown, en español, tono ejecutivo, máximo ~1 página, con estas secciones:
