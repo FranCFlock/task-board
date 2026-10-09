@@ -117,3 +117,10 @@ body {
 /* Gradient stat/hero card — brighten on hover, never flip to white */
 .stat-card-hero { background: var(--stat-gradient); color: #fff; transition: filter .15s ease; }
 .stat-card-hero:hover { filter: brightness(1.07); }
+
+/* Modal entrance */
+@keyframes pop {
+  0% { transform: scale(.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.report-pop { animation: pop .15s ease-out; }

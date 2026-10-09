@@ -3,6 +3,7 @@ import FindingsList from "@/components/FindingsList";
 import HealthBadge from "@/components/HealthBadge";
 import KpiCard, { ProgressCard } from "@/components/KpiCard";
 import MilestonesCard from "@/components/MilestonesCard";
+import ReportPanel from "@/components/ReportPanel";
 import StatusChart from "@/components/StatusChart";
 import Tabs, { type TabItem } from "@/components/Tabs";
 import TasksTable from "@/components/TasksTable";
@@ -87,6 +88,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
               {project.client} · {formatDate(project.startDate)} – {formatDate(project.endDate)}
             </p>
             <p className="mt-1 text-[12.5px] font-medium text-white/80">Actualizado al {formatDate(m.today)}</p>
+            <div className="mt-5">
+              <ReportPanel today={m.today} />
+            </div>
           </div>
           <div className="lg:w-96">
             <HealthBadge health={health} />
