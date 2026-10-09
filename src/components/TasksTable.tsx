@@ -18,8 +18,74 @@ const ALL = "all";
 const selectClass =
   "rounded-[8px] border border-line-strong bg-panel px-[11px] py-[9px] text-[13px] text-ink focus:border-brand focus:outline-2 focus:outline-brand-soft";
 
+const dangerText = { color: "var(--state-blocked-fg)" };
+
 function overdueLabel(days: number) {
   return days === 1 ? "Vencida hace 1 día" : `Vencida hace ${days} días`;
+}
+
+// Pieces shared by the desktop table rows and the mobile cards.
+
+function PriorityPill({ priority }: { priority: Priority }) {
+  return (
+    <span
+      className={`rounded-[20px] px-[11px] py-[3px] text-[11px] font-bold ${
+        priority === "high" ? "bg-brand-soft text-brand" : "bg-surface text-ink-soft"
+      }`}
+    >
+      {PRIORITY_LABEL[priority]}
+    </span>
+  );
+}
+
+function BlockedReason({ task }: { task: Task }) {
+  if (task.status !== "blocked" || !task.blockedReason) return null;
+  return (
+    <div className="mt-1 text-[12.5px] font-medium" style={dangerText}>
+      Motivo: {task.blockedReason}
+    </div>
+  );
+}
+
+/** Due date, plus how late it is (open tasks) or when it was finished (done tasks). */
+function DueInfo({ task, today }: { task: Task; today: ISODate }) {
+  const overdue = task.status !== "done" && task.dueDate < today;
+  return (
+    <>
+      <div className={`tabular-nums ${overdue ? "font-bold" : "text-ink-soft"}`} style={overdue ? dangerText : undefined}>
+        {formatDate(task.dueDate)}
+      </div>
+      {overdue && (
+        <div className="text-[11px] font-bold" style={dangerText}>
+          {overdueLabel(daysBetween(task.dueDate, today))}
+        </div>
+      )}
+      {task.status === "done" && task.completedAt && (
+        <div className="text-[11px] font-bold" style={{ color: "var(--state-completed-fg)" }}>
+          Completada el {formatDate(task.completedAt)}
+        </div>
+      )}
+    </>
+  );
+}
+
+function RowActions({ task, onEdit, onDelete }: { task: Task; onEdit: (t: Task) => void; onDelete: (t: Task) => void }) {
+  const icon = { viewBox: "0 0 24 24", className: "size-4", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
+  return (
+    <div className="flex justify-end gap-1">
+      <button type="button" onClick={() => onEdit(task)} className={iconButton} aria-label={`Editar "${task.title}"`} title="Editar">
+        <svg {...icon}>
+          <path d="M4 20h4L19 9l-4-4L4 16z" />
+          <path d="M13.5 6.5l4 4" />
+        </svg>
+      </button>
+      <button type="button" onClick={() => onDelete(task)} className={iconButton} aria-label={`Eliminar "${task.title}"`} title="Eliminar">
+        <svg {...icon}>
+          <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+        </svg>
+      </button>
+    </div>
+  );
 }
 
 export default function TasksTable({
@@ -65,6 +131,8 @@ export default function TasksTable({
     setPriority(ALL);
     setOnlyOverdue(false);
   };
+  const emptyMessage =
+    tasks.length === 0 ? "Todavía no hay tareas. Creá la primera con «Nueva tarea»." : "No hay tareas que coincidan con los filtros.";
 
   return (
     <div className="space-y-3">
@@ -127,7 +195,46 @@ export default function TasksTable({
         Mostrando {visible.length} de {tasks.length} tareas
       </p>
 
-      <div className="overflow-x-auto rounded-card border border-line bg-panel shadow-card">
+      {/* Cards on small screens */}
+      <ul className="space-y-3 md:hidden">
+        {visible.map((t) => (
+          <li key={t.id} className="rounded-card border border-line bg-panel p-4 shadow-card">
+            <div className="flex items-start gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-ink">{t.title}</div>
+                <BlockedReason task={t} />
+              </div>
+              <RowActions task={t} onEdit={onEdit} onDelete={onDelete} />
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <StatusChip state={TASK_STATUS_STATE[t.status]}>{TASK_STATUS_LABEL[t.status]}</StatusChip>
+              <PriorityPill priority={t.priority} />
+            </div>
+            <dl className="mt-3 grid grid-cols-2 gap-3 text-[13px]">
+              <div>
+                <dt className={fieldLabel}>Responsable</dt>
+                <dd className="mt-1 text-ink-soft">{t.owner}</dd>
+              </div>
+              <div>
+                <dt className={fieldLabel}>Vence</dt>
+                <dd className="mt-1">
+                  <DueInfo task={t} today={today} />
+                </dd>
+              </div>
+              <div className="col-span-2">
+                <dt className={fieldLabel}>Hito</dt>
+                <dd className="mt-1 text-ink-soft">{milestoneName.get(t.milestoneId) ?? "—"}</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+        {visible.length === 0 && (
+          <li className="t-secondary rounded-card border border-line bg-panel px-4 py-8 text-center shadow-card">{emptyMessage}</li>
+        )}
+      </ul>
+
+      {/* Table from the md breakpoint up */}
+      <div className="hidden overflow-x-auto rounded-card border border-line bg-panel shadow-card md:block">
         <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
           <thead>
             <tr className="border-b-2 border-line-strong bg-surface">
@@ -142,84 +249,32 @@ export default function TasksTable({
             </tr>
           </thead>
           <tbody>
-            {visible.map((t) => {
-              const overdue = isOverdue(t);
-              return (
-                <tr key={t.id} className="border-t border-line align-top">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-ink">{t.title}</div>
-                    {t.status === "blocked" && t.blockedReason && (
-                      <div className="mt-1 text-[12.5px] font-medium" style={{ color: "var(--state-blocked-fg)" }}>
-                        Motivo: {t.blockedReason}
-                      </div>
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{t.owner}</td>
-                  <td className="px-4 py-3">
-                    <StatusChip state={TASK_STATUS_STATE[t.status]}>{TASK_STATUS_LABEL[t.status]}</StatusChip>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-[20px] px-[11px] py-[3px] text-[11px] font-bold ${
-                        t.priority === "high" ? "bg-brand-soft text-brand" : "bg-surface text-ink-soft"
-                      }`}
-                    >
-                      {PRIORITY_LABEL[t.priority]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-ink-soft">{milestoneName.get(t.milestoneId) ?? "—"}</td>
-                  <td className="whitespace-nowrap px-4 py-3">
-                    <div
-                      className={`tabular-nums ${overdue ? "font-bold" : "text-ink-soft"}`}
-                      style={overdue ? { color: "var(--state-blocked-fg)" } : undefined}
-                    >
-                      {formatDate(t.dueDate)}
-                    </div>
-                    {overdue && (
-                      <div className="text-[11px] font-bold" style={{ color: "var(--state-blocked-fg)" }}>
-                        {overdueLabel(daysBetween(t.dueDate, today))}
-                      </div>
-                    )}
-                    {t.status === "done" && t.completedAt && (
-                      <div className="text-[11px] font-bold" style={{ color: "var(--state-completed-fg)" }}>
-                        Completada el {formatDate(t.completedAt)}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-2 py-2">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => onEdit(t)}
-                        className={iconButton}
-                        aria-label={`Editar "${t.title}"`}
-                        title="Editar"
-                      >
-                        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                          <path d="M4 20h4L19 9l-4-4L4 16z" />
-                          <path d="M13.5 6.5l4 4" />
-                        </svg>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(t)}
-                        className={iconButton}
-                        aria-label={`Eliminar "${t.title}"`}
-                        title="Eliminar"
-                      >
-                        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                          <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {visible.map((t) => (
+              <tr key={t.id} className="border-t border-line align-top">
+                <td className="px-4 py-3">
+                  <div className="font-semibold text-ink">{t.title}</div>
+                  <BlockedReason task={t} />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{t.owner}</td>
+                <td className="px-4 py-3">
+                  <StatusChip state={TASK_STATUS_STATE[t.status]}>{TASK_STATUS_LABEL[t.status]}</StatusChip>
+                </td>
+                <td className="px-4 py-3">
+                  <PriorityPill priority={t.priority} />
+                </td>
+                <td className="px-4 py-3 text-ink-soft">{milestoneName.get(t.milestoneId) ?? "—"}</td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <DueInfo task={t} today={today} />
+                </td>
+                <td className="px-2 py-2">
+                  <RowActions task={t} onEdit={onEdit} onDelete={onDelete} />
+                </td>
+              </tr>
+            ))}
             {visible.length === 0 && (
               <tr>
                 <td colSpan={7} className="t-secondary px-4 py-8 text-center">
-                  {tasks.length === 0 ? "Todavía no hay tareas. Creá la primera con «Nueva tarea»." : "No hay tareas que coincidan con los filtros."}
+                  {emptyMessage}
                 </td>
               </tr>
             )}
