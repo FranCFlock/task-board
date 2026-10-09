@@ -1,4 +1,4 @@
-import { daysBetween, toISODate } from "./dates";
+import { daysBetween, todayISO } from "./dates";
 import type {
   ActionItem,
   Finding,
@@ -59,7 +59,7 @@ export const YELLOW_OVERDUE_PCT = 10;
 
 const pct = (part: number, total: number) => (total === 0 ? 0 : Math.round((part / total) * 100));
 
-export function computeMetrics(data: ProjectData, today: ISODate = toISODate(new Date())): Metrics {
+export function computeMetrics(data: ProjectData, today: ISODate = todayISO()): Metrics {
   const { project, tasks, actionItems, findings } = data;
 
   const tasksByStatus: Record<TaskStatus, number> = { todo: 0, in_progress: 0, blocked: 0, done: 0 };

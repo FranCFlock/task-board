@@ -8,7 +8,7 @@ import StatusChart from "@/components/StatusChart";
 import Tabs, { type TabItem } from "@/components/Tabs";
 import TasksTable from "@/components/TasksTable";
 import { getProjectData } from "@/lib/data";
-import { formatDate } from "@/lib/dates";
+import { formatDate, todayISO } from "@/lib/dates";
 import { computeHealth, computeMetrics, type Metrics } from "@/lib/metrics";
 
 // Dates are shifted relative to "today", so the page must not be frozen at build time.
@@ -65,9 +65,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   const { tab } = await searchParams;
   const active: TabId = TAB_IDS.find((id) => id === tab) ?? "resumen";
 
-  const data = getProjectData();
+  const today = todayISO();
+  const data = getProjectData(today);
   const { project } = data;
-  const m = computeMetrics(data);
+  const m = computeMetrics(data, today);
   const health = computeHealth(m);
 
   const tabs: TabItem[] = [

@@ -2,12 +2,20 @@ import type { ISODate } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Local calendar date as YYYY-MM-DD. */
-export function toISODate(date: Date): ISODate {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+/** "Today" is the project's calendar day, not the server's (Vercel runs in UTC). */
+export const APP_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
+// en-CA formats dates as YYYY-MM-DD.
+const isoInAppZone = new Intl.DateTimeFormat("en-CA", {
+  timeZone: APP_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Calendar date in APP_TIME_ZONE as YYYY-MM-DD. */
+export function todayISO(now: Date = new Date()): ISODate {
+  return isoInAppZone.format(now);
 }
 
 function isoToUTC(iso: ISODate): number {

@@ -1,5 +1,5 @@
 import rawData from "@/data/proyecto-demo.json";
-import { addDays, daysBetween, toISODate } from "./dates";
+import { addDays, daysBetween, todayISO } from "./dates";
 import type { ISODate, ProjectData } from "./types";
 
 /**
@@ -8,9 +8,9 @@ import type { ISODate, ProjectData } from "./types";
  */
 type RawProjectData = ProjectData & { referenceDate: ISODate };
 
-export function getProjectData(today: Date = new Date()): ProjectData {
+export function getProjectData(today: ISODate = todayISO()): ProjectData {
   const { referenceDate, project, tasks, actionItems, findings } = rawData as RawProjectData;
-  const offset = daysBetween(referenceDate, toISODate(today));
+  const offset = daysBetween(referenceDate, today);
   const shift = (iso: ISODate) => addDays(iso, offset);
 
   return {

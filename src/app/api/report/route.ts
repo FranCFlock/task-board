@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { getProjectData } from "@/lib/data";
+import { todayISO } from "@/lib/dates";
 import { computeHealth, computeMetrics } from "@/lib/metrics";
 import { REPORT_SYSTEM_PROMPT, buildReportUserPrompt } from "@/lib/report-prompt";
 import { buildReportSummary, type ReportSummary } from "@/lib/report-summary";
@@ -38,8 +39,9 @@ async function generateAiReport(summary: ReportSummary, apiKey: string): Promise
 }
 
 export async function POST() {
-  const data = getProjectData();
-  const metrics = computeMetrics(data);
+  const today = todayISO();
+  const data = getProjectData(today);
+  const metrics = computeMetrics(data, today);
   const summary = buildReportSummary(data, metrics, computeHealth(metrics));
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
