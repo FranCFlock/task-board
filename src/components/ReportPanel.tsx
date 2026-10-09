@@ -182,8 +182,14 @@ export default function ReportPanel({ today }: { today: ISODate }) {
               <button type="button" onClick={copy} disabled={state.status !== "done"} className={ghostButton}>
                 Copiar
               </button>
-              <button type="button" onClick={download} disabled={state.status !== "done"} className={primaryButton}>
-                Descargar .md
+              <button
+                type="button"
+                onClick={download}
+                disabled={state.status !== "done"}
+                className={primaryButton}
+                title="Descarga el reporte como archivo Markdown (.md)"
+              >
+                Descargar
               </button>
             </footer>
           </div>
