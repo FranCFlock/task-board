@@ -137,7 +137,7 @@ notificaciones, multi-tenant. Van a "Próximos pasos" en el README.
 - [x] 4. Pestañas Tareas, Pendientes, Relevamiento
 - [x] 5. `report-template.ts` + `/api/report` con fallback
 - [x] 6. Integración con LLM + ReportPanel
-- [ ] 7. README (problema, demo, capturas, cómo correrlo, uso de IA, próximos pasos) + `docs/SPEC.md`
+- [x] 7. README (problema, demo, capturas, cómo correrlo, uso de IA, próximos pasos) + `docs/SPEC.md`
 - [ ] 8. Deploy en Vercel y link en el README
 
 ## Definición de terminado
