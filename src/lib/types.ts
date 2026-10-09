@@ -63,3 +63,9 @@ export interface ProjectData {
   actionItems: ActionItem[];
   findings: Finding[];
 }
+
+/** Response of POST /api/report. */
+export interface ReportResponse {
+  markdown: string;
+  source: "ai" | "template";
+}
