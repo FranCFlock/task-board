@@ -26,4 +26,4 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/.claude/skills/flock-design-system/
+/.claude/
