@@ -41,7 +41,7 @@ const markdownComponents: Components = {
 };
 
 /**
- * "Generar status report" button + panel. Sends the current tasks (which may include this
+ * "Generar reporte" button + panel. Sends the current tasks (which may include this
  * browser's edits) so the report matches what the dashboard shows.
  */
 export default function ReportPanel({ today, tasks }: { today: ISODate; tasks: Task[] }) {
@@ -119,7 +119,7 @@ export default function ReportPanel({ today, tasks }: { today: ISODate; tasks: T
           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
           <path d="M14 3v5h5M9 13h6M9 17h4" />
         </svg>
-        Generar status report
+        Generar reporte
       </button>
 
       <Modal

@@ -22,7 +22,7 @@ El PM abre el tablero y en un vistazo ve la salud del proyecto:
 - **Tareas** con filtros por estado, responsable y prioridad. Las vencidas se marcan en rojo y las bloqueadas muestran su motivo.
 - **ABM de tareas:** crear, editar y eliminar tareas desde el tablero. Los KPIs y el semáforo se actualizan al instante. Los cambios se guardan en el navegador y se pueden descartar con "Restablecer datos de demo".
 - **Pendientes** de reunión agrupados por reunión, y **relevamiento** (riesgos, hallazgos y requerimientos) con su impacto y estado.
-- **"Generar status report":** arma el reporte ejecutivo con 5 secciones (estado general, avance y logros, próximos pasos, riesgos y bloqueos, decisiones requeridas), listo para copiar, descargar en Markdown o imprimir / guardar como PDF.
+- **"Generar reporte":** arma el reporte ejecutivo con 5 secciones (estado general, avance y logros, próximos pasos, riesgos y bloqueos, decisiones requeridas), listo para copiar, descargar en Markdown o imprimir / guardar como PDF.
 
 | Tareas | Pendientes | Relevamiento |
 |---|---|---|

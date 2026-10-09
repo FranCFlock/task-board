@@ -65,7 +65,7 @@ Los umbrales (`RED_OVERDUE_PCT`, `YELLOW_OVERDUE_PCT`) son constantes en `metric
 
 ## 6. Interfaz
 
-- **Header:** nombre del proyecto, cliente, fechas, fecha de actualización, semáforo con motivos y el botón "Generar status report".
+- **Header:** nombre del proyecto, cliente, fechas, fecha de actualización, semáforo con motivos y el botón "Generar reporte".
 - **Pestañas** (en la URL: `?tab=resumen|tareas|pendientes|relevamiento`):
   - **Resumen:** tarjetas de KPIs, gráfico de tareas por estado e hitos (el próximo hito destacado, con su estado y avance).
   - **Tareas:** tabla con filtros por estado, responsable, prioridad y "Solo vencidas". Primero las abiertas por vencimiento y al final las completadas. Las vencidas muestran "Vencida hace N días" en rojo; las bloqueadas, su motivo. Incluye el ABM (ver sección 6.1).
