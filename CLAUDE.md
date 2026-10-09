@@ -132,7 +132,7 @@ notificaciones, multi-tenant. Van a "Próximos pasos" en el README.
 
 ## Plan de implementación
 - [x] 1. `types.ts` + `proyecto-demo.json` + `data.ts`
-- [ ] 2. `metrics.ts` (funciones puras) + semáforo
+- [x] 2. `metrics.ts` (funciones puras) + semáforo
 - [ ] 3. Página con header, KPIs y gráfico
 - [ ] 4. Pestañas Tareas, Pendientes, Relevamiento
 - [ ] 5. `report-template.ts` + `/api/report` con fallback
