@@ -22,6 +22,15 @@ export interface NextMilestone {
   daysLeft: number;
 }
 
+export type MilestoneState = "done" | "overdue" | "at_risk" | "on_track";
+
+export interface MilestoneSummary {
+  milestone: Milestone;
+  state: MilestoneState;
+  doneTasks: number;
+  totalTasks: number;
+}
+
 export interface Metrics {
   today: ISODate;
   totalTasks: number;
@@ -40,6 +49,8 @@ export interface Metrics {
   openRisksByImpact: Record<Impact, number>;
   nextMilestone: NextMilestone | null;
   overdueMilestones: Milestone[];
+  /** All milestones by due date. "at_risk" = pending with overdue open tasks. */
+  milestones: MilestoneSummary[];
 }
 
 // Health thresholds, as % of open tasks that are overdue.
@@ -70,6 +81,22 @@ export function computeMetrics(data: ProjectData, today: ISODate = toISODate(new
   const overdueMilestones = pendingMilestones.filter((m) => m.dueDate < today);
   const upcoming = pendingMilestones.find((m) => m.dueDate >= today);
 
+  const milestones = [...project.milestones]
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+    .map((milestone): MilestoneSummary => {
+      const own = tasks.filter((t) => t.milestoneId === milestone.id);
+      let state: MilestoneState = "on_track";
+      if (milestone.status === "done") state = "done";
+      else if (milestone.dueDate < today) state = "overdue";
+      else if (overdueTasks.some((t) => t.milestoneId === milestone.id)) state = "at_risk";
+      return {
+        milestone,
+        state,
+        doneTasks: own.filter((t) => t.status === "done").length,
+        totalTasks: own.length,
+      };
+    });
+
   return {
     today,
     totalTasks: tasks.length,
@@ -88,6 +115,7 @@ export function computeMetrics(data: ProjectData, today: ISODate = toISODate(new
       ? { milestone: upcoming, daysLeft: daysBetween(today, upcoming.dueDate) }
       : null,
     overdueMilestones,
+    milestones,
   };
 }
 
