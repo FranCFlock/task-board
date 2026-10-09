@@ -33,7 +33,7 @@ Definido en [`src/lib/types.ts`](../src/lib/types.ts). Fechas en ISO `AAAA-MM-DD
 
 [`src/data/proyecto-demo.json`](../src/data/proyecto-demo.json): "Migración del portal de clientes" para un banco ficticio. Tiene 4 hitos, 30 tareas de 6 responsables, 10 pendientes de 3 reuniones y 12 ítems relevados.
 
-Las fechas del JSON están escritas respecto de `referenceDate`. Al cargarse ([`src/lib/data.ts`](../src/lib/data.ts)), todas se corren `(hoy − referenceDate)` días, así que el estado del proyecto es el mismo cualquier día que se abra: **amarillo**, con 4 tareas vencidas, 3 bloqueadas y 2 pendientes vencidos.
+Las fechas del JSON están escritas respecto de `referenceDate`. Al cargarse ([`src/lib/data.ts`](../src/lib/data.ts)), todas se corren `(hoy − referenceDate)` días, así que el estado del proyecto es el mismo cualquier día que se abra: **verde**, con 16 de 33 tareas completadas (48%), ninguna vencida ni bloqueada y ningún pendiente vencido.
 
 ## 4. KPIs
 
@@ -135,7 +135,7 @@ Cada reporte con IA tiene costo, y el endpoint es público. Por eso las llamadas
 |---|---|
 | `lib/dates.test.ts` | "hoy" en horario de Argentina (incluidos los bordes de UTC), `daysBetween`, `addDays`, formato de fechas |
 | `lib/metrics.test.ts` | KPIs, estado de cada hito y semáforo: umbrales de 10% y 20%, motivos y su orden, singular y plural |
-| `lib/data.test.ts` | el corrimiento de fechas de los datos de demo y que el proyecto sea **siempre amarillo**, con los mismos motivos, sea cual sea el día |
+| `lib/data.test.ts` | el corrimiento de fechas de los datos de demo y que el proyecto sea **siempre verde**, con los mismos motivos, sea cual sea el día |
 | `lib/tasks.test.ts` | validación y normalización de tareas, y `parseTasks` con datos corruptos o malintencionados |
 | `lib/report-summary.test.ts` | qué entra en cada sección del reporte (período, próximos 7 días, riesgos, hallazgos) |
 | `lib/report-template.test.ts` | estructura del reporte, estados vacíos y los topes para que entre en una página |

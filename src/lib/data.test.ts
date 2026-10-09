@@ -58,16 +58,28 @@ describe("demo data: date shifting", () => {
   });
 });
 
-describe("demo data: the project is always yellow", () => {
+describe("demo data: the project is always green", () => {
   const baseline = healthOn(REF);
 
-  it("is yellow on the reference date, with the three documented reasons", () => {
-    expect(baseline.level).toBe("yellow");
-    expect(baseline.reasons).toEqual([
-      "19% de las tareas abiertas están vencidas (4 de 21)",
-      "3 tareas bloqueadas",
-      "2 pendientes de reunión vencidos",
-    ]);
+  it("is green on the reference date, with nothing overdue, blocked or at risk", () => {
+    expect(baseline.level).toBe("green");
+    expect(baseline.reasons).toEqual(["Sin desvíos: tareas, hitos, riesgos y pendientes en orden"]);
+    const m = computeMetrics(getProjectData(REF), REF);
+    expect(m.overdueTasks).toHaveLength(0);
+    expect(m.blockedTasks).toHaveLength(0);
+    expect(m.overdueActionItems).toHaveLength(0);
+    expect(m.overdueMilestones).toHaveLength(0);
+    expect(m.openRisksByImpact.high).toBe(0);
+  });
+
+  it("still has progress to show: recent completions and the MVP on track", () => {
+    const data = getProjectData(REF);
+    const m = computeMetrics(data, REF);
+    expect(m.progressPct).toBe(48);
+    expect(m.milestones.find((s) => s.milestone.id === "m2")?.state).toBe("on_track");
+    const periodStart = addDays(REF, -14);
+    const recent = data.tasks.filter((t) => t.status === "done" && t.completedAt! >= periodStart);
+    expect(recent.length).toBeGreaterThanOrEqual(5);
   });
 
   it.each(OFFSETS)("is identical when opened %i days from the reference date", (offset) => {

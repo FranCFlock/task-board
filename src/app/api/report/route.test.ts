@@ -99,7 +99,7 @@ describe("POST /api/report without an API key", () => {
     for (const req of [request(), request("{no es json")]) {
       const { status, body } = await call(POST, req);
       expect(status).toBe(200);
-      expect(body.markdown).toContain("Integración con el servicio de autenticación (SSO)");
+      expect(body.markdown).toContain("Home del cliente (front)"); // a task that only exists in the demo data
     }
   });
 
@@ -108,7 +108,7 @@ describe("POST /api/report without an API key", () => {
     const { body } = await call(POST, request({ tasks: [validTask()] }));
     expect(body.markdown).toContain("Tarea especial");
     expect(body.markdown).toContain("Falta la aprobación");
-    expect(body.markdown).not.toContain("Integración con el servicio de autenticación (SSO)");
+    expect(body.markdown).not.toContain("Home del cliente (front)"); // the demo tasks are replaced, not merged
   });
 
   it("is never rate limited, since it costs nothing", async () => {
