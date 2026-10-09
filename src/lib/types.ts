@@ -68,4 +68,6 @@ export interface ProjectData {
 export interface ReportResponse {
   markdown: string;
   source: "ai" | "template";
+  /** True when the AI report was skipped because the usage limit was reached. */
+  limited?: boolean;
 }

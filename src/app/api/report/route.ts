@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getProjectData } from "@/lib/data";
 import { todayISO } from "@/lib/dates";
 import { computeHealth, computeMetrics } from "@/lib/metrics";
+import { clientIp, createRateLimiter } from "@/lib/rate-limit";
 import { REPORT_SYSTEM_PROMPT, buildReportUserPrompt } from "@/lib/report-prompt";
 import { buildReportSummary, type ReportSummary } from "@/lib/report-summary";
 import { renderTemplateReport } from "@/lib/report-template";
@@ -13,6 +14,18 @@ export const dynamic = "force-dynamic";
 
 const DEFAULT_MODEL = "claude-sonnet-5-5";
 const AI_TIMEOUT_MS = 15_000;
+const MAX_BODY_BYTES = 200_000; // 300 tasks of max-length text is well under this
+
+// Each AI report costs real money, so AI calls are limited per IP and overall. Over the limit,
+// the report still works: it is generated from the template (free) instead.
+const intFromEnv = (name: string, fallback: number) => {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+};
+const aiRateLimit = createRateLimiter(
+  { limit: intFromEnv("REPORT_AI_LIMIT_PER_IP", 6), windowMs: 10 * 60_000 },
+  { limit: intFromEnv("REPORT_AI_LIMIT_GLOBAL", 60), windowMs: 60 * 60_000 },
+);
 
 /** Returns the report Markdown, or null if the model declined or returned nothing usable. */
 async function generateAiReport(summary: ReportSummary, apiKey: string): Promise<string | null> {
@@ -47,6 +60,10 @@ async function readTasks(request: Request, milestoneIds: string[]): Promise<Task
 }
 
 export async function POST(request: Request) {
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "El pedido es demasiado grande." }, { status: 413 });
+  }
+
   const today = todayISO();
   const demo = getProjectData(today);
   const tasks = await readTasks(request, demo.project.milestones.map((m) => m.id));
@@ -58,7 +75,16 @@ export async function POST(request: Request) {
   const summary = buildReportSummary(data, metrics, computeHealth(metrics));
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
+  let limited = false;
   if (apiKey) {
+    const rate = aiRateLimit(clientIp(request.headers));
+    limited = !rate.allowed;
+    if (!rate.allowed) {
+      console.warn(`[report] AI rate limit reached (retry in ${rate.retryAfterSec} s); using template`);
+    }
+  }
+
+  if (apiKey && !limited) {
     try {
       const markdown = await generateAiReport(summary, apiKey);
       if (markdown) return NextResponse.json<ReportResponse>({ markdown, source: "ai" });
@@ -76,5 +102,9 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json<ReportResponse>({ markdown: renderTemplateReport(summary), source: "template" });
+  return NextResponse.json<ReportResponse>({
+    markdown: renderTemplateReport(summary),
+    source: "template",
+    ...(limited && { limited: true }),
+  });
 }

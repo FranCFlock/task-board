@@ -195,7 +195,11 @@ function SourceBadge({ report, ms }: { report: ReportResponse; ms: number }) {
   return (
     <span
       className="rounded-[20px] bg-surface px-[10px] py-[3px] text-[10.5px] font-bold text-ink-soft"
-      title="Sin API key configurada o la IA no respondió a tiempo"
+      title={
+        report.limited
+          ? "Se alcanzó el límite de reportes con IA; probá de nuevo en unos minutos"
+          : "Sin API key configurada o la IA no respondió a tiempo"
+      }
     >
       Generado por plantilla · {elapsed}
     </span>
