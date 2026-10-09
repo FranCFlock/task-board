@@ -1,20 +1,80 @@
+import ActionItemsList from "@/components/ActionItemsList";
+import FindingsList from "@/components/FindingsList";
 import HealthBadge from "@/components/HealthBadge";
 import KpiCard, { ProgressCard } from "@/components/KpiCard";
 import MilestonesCard from "@/components/MilestonesCard";
 import StatusChart from "@/components/StatusChart";
+import Tabs, { type TabItem } from "@/components/Tabs";
+import TasksTable from "@/components/TasksTable";
 import { getProjectData } from "@/lib/data";
 import { formatDate } from "@/lib/dates";
-import { computeHealth, computeMetrics } from "@/lib/metrics";
+import { computeHealth, computeMetrics, type Metrics } from "@/lib/metrics";
 
 // Dates are shifted relative to "today", so the page must not be frozen at build time.
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+const TAB_IDS = ["resumen", "tareas", "pendientes", "relevamiento"] as const;
+type TabId = (typeof TAB_IDS)[number];
+
+function SummaryTab({ m }: { m: Metrics }) {
+  const risks = m.openRisksByImpact;
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="col-span-2 lg:col-span-1">
+          <ProgressCard pct={m.progressPct} done={m.doneTasks} total={m.totalTasks} />
+        </div>
+        <KpiCard
+          label="Tareas vencidas"
+          value={m.overdueTasks.length}
+          detail={`${m.overdueOpenPct}% de las ${m.openTasks} abiertas`}
+          dotColor="var(--accent)"
+        />
+        <KpiCard
+          label="Bloqueadas"
+          value={m.blockedTasks.length}
+          detail="Necesitan destrabarse"
+          dotColor="var(--state-blocked-bar)"
+        />
+        <KpiCard
+          label="Pendientes abiertos"
+          value={m.openActionItems.length}
+          detail={`${m.overdueActionItems.length} vencidos`}
+          dotColor="var(--state-in-progress-bar)"
+        />
+        <KpiCard
+          label="Riesgos abiertos"
+          value={m.openRisks.length}
+          detail={`${risks.high} alto · ${risks.medium} medio · ${risks.low} bajo`}
+          dotColor="var(--state-pending-bar)"
+        />
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <StatusChart tasksByStatus={m.tasksByStatus} />
+        </div>
+        <MilestonesCard milestones={m.milestones} next={m.nextMilestone} />
+      </div>
+    </div>
+  );
+}
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams;
+  const active: TabId = TAB_IDS.find((id) => id === tab) ?? "resumen";
+
   const data = getProjectData();
   const { project } = data;
   const m = computeMetrics(data);
   const health = computeHealth(m);
-  const risks = m.openRisksByImpact;
+
+  const tabs: TabItem[] = [
+    { id: "resumen", label: "Resumen" },
+    { id: "tareas", label: "Tareas", count: data.tasks.length },
+    { id: "pendientes", label: "Pendientes", count: m.openActionItems.length },
+    { id: "relevamiento", label: "Relevamiento", count: data.findings.length },
+  ];
 
   return (
     <>
@@ -34,45 +94,15 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <h2 className="t-section text-brand-dark">Resumen</h2>
+      <Tabs tabs={tabs} active={active} />
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <div className="col-span-2 lg:col-span-1">
-            <ProgressCard pct={m.progressPct} done={m.doneTasks} total={m.totalTasks} />
-          </div>
-          <KpiCard
-            label="Tareas vencidas"
-            value={m.overdueTasks.length}
-            detail={`${m.overdueOpenPct}% de las ${m.openTasks} abiertas`}
-            dotColor="var(--accent)"
-          />
-          <KpiCard
-            label="Bloqueadas"
-            value={m.blockedTasks.length}
-            detail="Necesitan destrabarse"
-            dotColor="var(--state-blocked-bar)"
-          />
-          <KpiCard
-            label="Pendientes abiertos"
-            value={m.openActionItems.length}
-            detail={`${m.overdueActionItems.length} vencidos`}
-            dotColor="var(--state-in-progress-bar)"
-          />
-          <KpiCard
-            label="Riesgos abiertos"
-            value={m.openRisks.length}
-            detail={`${risks.high} alto · ${risks.medium} medio · ${risks.low} bajo`}
-            dotColor="var(--state-pending-bar)"
-          />
-        </div>
-
-        <div className="grid gap-3 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <StatusChart tasksByStatus={m.tasksByStatus} />
-          </div>
-          <MilestonesCard milestones={m.milestones} next={m.nextMilestone} />
-        </div>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        {active === "resumen" && <SummaryTab m={m} />}
+        {active === "tareas" && (
+          <TasksTable tasks={data.tasks} milestones={project.milestones} today={m.today} />
+        )}
+        {active === "pendientes" && <ActionItemsList items={data.actionItems} today={m.today} />}
+        {active === "relevamiento" && <FindingsList findings={data.findings} />}
       </main>
     </>
   );

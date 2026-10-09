@@ -134,7 +134,7 @@ notificaciones, multi-tenant. Van a "Próximos pasos" en el README.
 - [x] 1. `types.ts` + `proyecto-demo.json` + `data.ts`
 - [x] 2. `metrics.ts` (funciones puras) + semáforo
 - [x] 3. Página con header, KPIs y gráfico
-- [ ] 4. Pestañas Tareas, Pendientes, Relevamiento
+- [x] 4. Pestañas Tareas, Pendientes, Relevamiento
 - [ ] 5. `report-template.ts` + `/api/report` con fallback
 - [ ] 6. Integración con LLM + ReportPanel
 - [ ] 7. README (problema, demo, capturas, cómo correrlo, uso de IA, próximos pasos) + `docs/SPEC.md`
