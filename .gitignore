@@ -26,5 +26,4 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Flock design system skill: proprietary, kept local only (not published)
 /.claude/skills/flock-design-system/
