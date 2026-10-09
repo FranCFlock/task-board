@@ -13,9 +13,9 @@ Usuario principal: el PM del proyecto. Lectores del reporte: sponsors y gerencia
 
 ## 2. Alcance
 
-**Incluido:** un proyecto con datos de prueba, KPIs, semáforo, gráfico, hitos, vistas de tareas, pendientes y relevamiento, y la generación del reporte (con IA opcional y plantilla de respaldo).
+**Incluido:** un proyecto con datos de prueba, KPIs, semáforo, gráfico, hitos, vistas de tareas, pendientes y relevamiento, ABM de tareas guardado en el navegador, y la generación del reporte (con IA opcional y plantilla de respaldo).
 
-**Fuera de alcance:** login y usuarios, base de datos, ABM de tareas, integraciones reales (Jira, Trello, etc.), notificaciones y multi-tenant.
+**Fuera de alcance:** login y usuarios, base de datos, ABM de pendientes, ítems relevados e hitos, integraciones reales (Jira, Trello, etc.), notificaciones y multi-tenant.
 
 ## 3. Modelo de datos
 
@@ -68,16 +68,27 @@ Los umbrales (`RED_OVERDUE_PCT`, `YELLOW_OVERDUE_PCT`) son constantes en `metric
 - **Header:** nombre del proyecto, cliente, fechas, fecha de actualización, semáforo con motivos y el botón "Generar status report".
 - **Pestañas** (en la URL: `?tab=resumen|tareas|pendientes|relevamiento`):
   - **Resumen:** tarjetas de KPIs, gráfico de tareas por estado e hitos (el próximo hito destacado, con su estado y avance).
-  - **Tareas:** tabla con filtros por estado, responsable, prioridad y "Solo vencidas". Primero las abiertas por vencimiento y al final las completadas. Las vencidas muestran "Vencida hace N días" en rojo; las bloqueadas, su motivo.
+  - **Tareas:** tabla con filtros por estado, responsable, prioridad y "Solo vencidas". Primero las abiertas por vencimiento y al final las completadas. Las vencidas muestran "Vencida hace N días" en rojo; las bloqueadas, su motivo. Incluye el ABM (ver sección 6.1).
   - **Pendientes:** agrupados por reunión (la más reciente primero), con estado Abierto / Vencido / Hecho.
   - **Relevamiento:** agrupado en Riesgos, Hallazgos y Requerimientos; primero los abiertos y de mayor impacto.
 - **Panel del reporte:** muestra el Markdown renderizado, la fuente (IA o plantilla) y el tiempo de generación. Permite copiar, descargar (`status-report-AAAA-MM-DD.md`), imprimir o guardar como PDF (al imprimir solo sale el reporte, con el nombre de archivo `status-report-AAAA-MM-DD`) y regenerar.
+
+### 6.1 ABM de tareas
+
+- **Alta:** botón "Nueva tarea" en la barra de filtros. **Edición** y **baja:** íconos al final de cada fila; la baja pide confirmación.
+- **Formulario** (modal): título, responsable (con sugerencias de los existentes, o uno nuevo), vence, estado, prioridad, hito y, si el estado es "Bloqueada", el motivo.
+- **Validación** ([`src/lib/tasks.ts`](../src/lib/tasks.ts)): título (máx. 120), responsable (máx. 60), fecha válida y hito existente son obligatorios; el motivo es obligatorio si la tarea está bloqueada (máx. 300) y se descarta si no lo está.
+- **Persistencia:** solo en el navegador (`localStorage`, clave `status-board:tasks:v1`). No se comparte entre navegadores ni dispositivos. Si lo guardado no es válido, se ignora y se muestran los datos de demo.
+- Con cambios guardados, un aviso lo indica y ofrece **"Restablecer datos de demo"** (con confirmación).
+- KPIs, semáforo, hitos y contador de la pestaña se recalculan al instante. Las fechas de las tareas editadas quedan fijas (no se corren con el día, a diferencia de las de demo).
 
 ## 7. Status report
 
 ### Contrato
 
-`POST /api/report` (sin cuerpo) → `200 { markdown: string, source: "ai" | "template" }`
+`POST /api/report` → `200 { markdown: string, source: "ai" | "template" }`
+
+Cuerpo opcional: `{ tasks: Task[] }` con las tareas del navegador (el panel siempre lo envía). Sin cuerpo se usan las tareas de demo. Si `tasks` no es válido (misma validación que el formulario, máximo 300 tareas) responde `400 { error }`. Hitos, pendientes e ítems relevados siempre salen de los datos del servidor.
 
 ### Contenido
 

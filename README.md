@@ -20,6 +20,7 @@ El PM abre el tablero y en un vistazo ve la salud del proyecto:
 - **KPIs:** % de avance, tareas vencidas, bloqueadas, pendientes abiertos y riesgos abiertos.
 - **Gráfico** de tareas por estado e **hitos** con su avance, el próximo hito y los días que faltan.
 - **Tareas** con filtros por estado, responsable y prioridad. Las vencidas se marcan en rojo y las bloqueadas muestran su motivo.
+- **ABM de tareas:** crear, editar y eliminar tareas desde el tablero. Los KPIs y el semáforo se actualizan al instante. Los cambios se guardan en el navegador y se pueden descartar con "Restablecer datos de demo".
 - **Pendientes** de reunión agrupados por reunión, y **relevamiento** (riesgos, hallazgos y requerimientos) con su impacto y estado.
 - **"Generar status report":** arma el reporte ejecutivo con 5 secciones (estado general, avance y logros, próximos pasos, riesgos y bloqueos, decisiones requeridas), listo para copiar, descargar en Markdown o imprimir / guardar como PDF.
 
@@ -74,14 +75,17 @@ La key se obtiene en la [Claude Console](https://platform.claude.com) (Settings 
 - **Next.js 15** (App Router) + **TypeScript** + **Tailwind CSS 4**
 - **Recharts** para el gráfico; **react-markdown** + **remark-gfm** para mostrar el reporte
 - **@anthropic-ai/sdk** para la generación con IA (solo del lado del servidor; la key nunca llega al navegador)
-- Sin base de datos: los datos de prueba están en [`src/data/proyecto-demo.json`](src/data/proyecto-demo.json). Las fechas se corren respecto del día actual, así que siempre hay tareas vencidas y próximas.
+- Sin base de datos: los datos de prueba están en [`src/data/proyecto-demo.json`](src/data/proyecto-demo.json). Las fechas se corren respecto del día actual, así que siempre hay tareas vencidas y próximas. Las tareas editadas se guardan en el `localStorage` del navegador.
 - Estética basada en el design system de Flock (paleta, tipografía y componentes)
 
 ```
 src/
   app/page.tsx              # tablero con pestañas (?tab=resumen|tareas|pendientes|relevamiento)
   app/api/report/route.ts   # POST: status report (IA o plantilla)
-  components/               # KPIs, semáforo, gráfico, hitos, tabla, listas, panel del reporte
+  components/               # Dashboard (estado del cliente), KPIs, semáforo, gráfico, hitos, tabla,
+                            # formulario de tarea, modal, listas y panel del reporte
+  lib/tasks.ts              # validación de tareas (formulario y endpoint)
+  lib/use-tasks.ts          # ABM de tareas guardado en el navegador
   lib/metrics.ts            # KPIs y semáforo (funciones puras)
   lib/report-summary.ts     # resumen estructurado que usan la plantilla y el prompt
   lib/report-template.ts    # reporte sin IA
@@ -93,7 +97,7 @@ La especificación funcional (modelo de datos, KPIs, reglas del semáforo y cont
 ## Próximos pasos
 
 - **Integraciones reales** con Jira, Trello o Azure DevOps para las tareas, y con las minutas de reunión para los pendientes.
-- **Persistencia** (base de datos) y **ABM de tareas**, pendientes e ítems relevados desde el tablero.
+- **Persistencia compartida** (base de datos) para que los cambios de tareas se vean en todos los navegadores, y **ABM de pendientes, ítems relevados e hitos**.
 - **Login y usuarios**, con vistas por rol (PM, sponsor, equipo) y **multi-proyecto / multi-cliente**.
 - **Fecha real de cierre** de cada tarea, para que "logros del período" no dependa de la fecha de vencimiento.
 - **Historial de reportes** y envío programado por mail o Teams.

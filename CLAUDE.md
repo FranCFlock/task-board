@@ -23,7 +23,7 @@ genera el status report ejecutivo con un clic.
 - Next.js (App Router) + TypeScript + Tailwind CSS
 - Recharts para gráficos
 - `@anthropic-ai/sdk` para generar el reporte
-- Sin base de datos: datos en `src/data/proyecto-demo.json`
+- Sin base de datos: datos en `src/data/proyecto-demo.json` (las tareas editadas se guardan en el navegador)
 - Deploy: Vercel
 
 ## Comandos
@@ -126,9 +126,16 @@ Lógica:
 - Botón destacado "Generar status report" que abre ReportPanel (copiar / descargar .md).
 - Responsive y prolijo, sin sobrediseñar.
 
+## ABM de tareas (agregado después del MVP)
+- Alta, edición y baja de **tareas** desde la pestaña Tareas, con formulario en modal y confirmación al eliminar.
+- Persistencia **solo en el navegador** (localStorage, clave `status-board:tasks:v1`) + botón "Restablecer datos de demo".
+- Métricas y semáforo se recalculan en el cliente (`components/Dashboard.tsx`, `lib/use-tasks.ts`).
+- Validación compartida en `lib/tasks.ts`; `/api/report` recibe `{ tasks }` opcional y responde 400 si no es válido.
+- Hitos, pendientes e ítems relevados siguen siendo de solo lectura.
+
 ## Fuera de alcance
-Login/usuarios, base de datos, CRUD de tareas, integraciones reales (Jira, Trello, etc.),
-notificaciones, multi-tenant. Van a "Próximos pasos" en el README.
+Login/usuarios, base de datos, ABM de pendientes, ítems relevados e hitos, integraciones reales
+(Jira, Trello, etc.), notificaciones, multi-tenant. Van a "Próximos pasos" en el README.
 
 ## Plan de implementación
 - [x] 1. `types.ts` + `proyecto-demo.json` + `data.ts`
