@@ -21,11 +21,13 @@ El PM abre el tablero y en un vistazo ve la salud del proyecto:
 - **Gráfico** de tareas por estado e **hitos** con su avance, el próximo hito y los días que faltan.
 - **Tareas** con filtros por estado, responsable y prioridad. Las vencidas se marcan en rojo y las bloqueadas muestran su motivo.
 - **Pendientes** de reunión agrupados por reunión, y **relevamiento** (riesgos, hallazgos y requerimientos) con su impacto y estado.
-- **"Generar status report":** arma el reporte ejecutivo en Markdown con 5 secciones (estado general, avance y logros, próximos pasos, riesgos y bloqueos, decisiones requeridas), listo para copiar o descargar.
+- **"Generar status report":** arma el reporte ejecutivo con 5 secciones (estado general, avance y logros, próximos pasos, riesgos y bloqueos, decisiones requeridas), listo para copiar, descargar en Markdown o imprimir / guardar como PDF.
 
 | Tareas | Pendientes | Relevamiento |
 |---|---|---|
 | ![Tareas](docs/screenshots/tareas.png) | ![Pendientes](docs/screenshots/pendientes.png) | ![Relevamiento](docs/screenshots/relevamiento.png) |
+
+![Panel del status report](docs/screenshots/reporte.png)
 
 ## Cómo correrlo
 

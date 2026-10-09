@@ -37,7 +37,7 @@ Las fechas del JSON están escritas respecto de `referenceDate`. Al cargarse ([`
 
 ## 4. KPIs
 
-Calculados en [`src/lib/metrics.ts`](../src/lib/metrics.ts) con funciones puras. "Hoy" es la fecha local del servidor.
+Calculados en [`src/lib/metrics.ts`](../src/lib/metrics.ts) con funciones puras. "Hoy" es la fecha actual en la zona horaria `America/Argentina/Buenos_Aires` (`todayISO()` en [`src/lib/dates.ts`](../src/lib/dates.ts)), sin importar en qué zona corra el servidor.
 
 | KPI | Definición |
 |---|---|
@@ -71,7 +71,7 @@ Los umbrales (`RED_OVERDUE_PCT`, `YELLOW_OVERDUE_PCT`) son constantes en `metric
   - **Tareas:** tabla con filtros por estado, responsable, prioridad y "Solo vencidas". Primero las abiertas por vencimiento y al final las completadas. Las vencidas muestran "Vencida hace N días" en rojo; las bloqueadas, su motivo.
   - **Pendientes:** agrupados por reunión (la más reciente primero), con estado Abierto / Vencido / Hecho.
   - **Relevamiento:** agrupado en Riesgos, Hallazgos y Requerimientos; primero los abiertos y de mayor impacto.
-- **Panel del reporte:** muestra el Markdown renderizado, la fuente (IA o plantilla) y el tiempo de generación. Permite copiar, descargar (`status-report-AAAA-MM-DD.md`) y regenerar.
+- **Panel del reporte:** muestra el Markdown renderizado, la fuente (IA o plantilla) y el tiempo de generación. Permite copiar, descargar (`status-report-AAAA-MM-DD.md`), imprimir o guardar como PDF (al imprimir solo sale el reporte, con el nombre de archivo `status-report-AAAA-MM-DD`) y regenerar.
 
 ## 7. Status report
 
