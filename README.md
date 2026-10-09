@@ -2,7 +2,7 @@
 
 Tablero que centraliza el estado de un proyecto (tareas, pendientes de reunión e ítems relevados) y genera el **status report ejecutivo con un clic**, para reemplazar el reporte que hoy se arma a mano.
 
-> Proyecto hecho en un día para un hackathon. Todos los datos son ficticios.
+> Todos los datos son ficticios.
 
 **Demo:** https://task-board-seven-alpha.vercel.app
 
