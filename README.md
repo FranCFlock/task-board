@@ -36,7 +36,7 @@ El PM abre el tablero y en un vistazo ve la salud del proyecto:
 
 ## Cómo correrlo
 
-Requisitos: Node.js 20 o superior.
+Requisitos: Node.js 22.12 o superior (la app corre desde Node 20, pero `npm test` usa Vitest 5, que pide 22.12+).
 
 ```bash
 npm install
@@ -96,6 +96,8 @@ src/
   lib/report-summary.ts     # resumen estructurado que usan la plantilla y el prompt
   lib/report-template.ts    # reporte sin IA
   lib/report-prompt.ts      # prompt para el LLM
+  lib/rate-limit.ts         # límite de uso de los reportes con IA
+  **/*.test.ts              # tests unitarios (Vitest), junto al código que prueban
 ```
 
 La especificación funcional (modelo de datos, KPIs, reglas del semáforo y contrato del endpoint) está en [`docs/SPEC.md`](docs/SPEC.md).

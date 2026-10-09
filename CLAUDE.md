@@ -12,7 +12,7 @@ genera el status report ejecutivo con un clic.
 
 ## Reglas de trabajo para Claude
 - Priorizar que funcione de punta a punta antes de pulir. Si algo se complica, simplificar.
-- Pasos chicos: después de cada funcionalidad, verificar `npm run build` y sugerir un commit
+- Pasos chicos: después de cada funcionalidad, verificar `npm run build`, `npm run lint` y `npm test`, y sugerir un commit
   con Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`).
 - No agregar dependencias fuera del stack sin preguntar.
 - No implementar nada de la sección "Fuera de alcance".
@@ -47,23 +47,36 @@ Si `ANTHROPIC_API_KEY` no está definida, la app DEBE funcionar igual usando el 
 ```
 src/
   app/
-    page.tsx              # tablero: header + pestañas (Resumen, Tareas, Pendientes, Relevamiento)
-    api/report/route.ts   # POST: genera status report (LLM o fallback)
+    page.tsx              # server: carga los datos de demo y renderiza <Dashboard>
+    layout.tsx            # metadatos, favicon/OG y script del tema (antes del primer render)
+    globals.css           # tokens del design system (claro/oscuro) + utilidades Tailwind
+    api/report/route.ts   # POST: status report (LLM o plantilla), límite de uso, validación
   components/
+    Dashboard.tsx         # cliente: estado de las tareas, métricas, pestañas, diálogos
+    Tabs.tsx              # pestañas por URL (?tab=)
     KpiCard.tsx
     HealthBadge.tsx       # semáforo verde/amarillo/rojo con motivos
     StatusChart.tsx       # tareas por estado (Recharts)
-    TasksTable.tsx        # filtros por estado, responsable, prioridad; vencidas resaltadas
+    MilestonesCard.tsx    # próximo hito + avance por hito
+    TasksTable.tsx        # filtros, tabla (escritorio) y tarjetas (celular); vencidas resaltadas
+    TaskForm.tsx          # alta y edición de tareas (modal)
     ActionItemsList.tsx
     FindingsList.tsx
-    ReportPanel.tsx       # botón generar, render Markdown, copiar y descargar .md
+    ReportPanel.tsx       # botón generar, render Markdown, copiar, descargar .md, imprimir/PDF
+    Modal.tsx, Toast.tsx, StatusChip.tsx, ThemeToggle.tsx, ui.ts   # piezas de UI compartidas
   data/proyecto-demo.json
   lib/
     types.ts
-    data.ts               # carga y tipado del JSON
+    data.ts               # carga del JSON y corrimiento de fechas respecto de hoy
+    dates.ts              # fechas ISO, "hoy" en horario de Argentina
     metrics.ts            # KPIs + semáforo (funciones puras)
+    tasks.ts, use-tasks.ts # validación y ABM de tareas (guardado en el navegador)
+    labels.ts             # textos en español y colores por estado
+    report-summary.ts     # resumen estructurado (entrada de la plantilla y del prompt)
     report-template.ts    # reporte sin IA
     report-prompt.ts      # armado del prompt para el LLM
+    rate-limit.ts         # límite de uso de los reportes con IA
+  **/*.test.ts            # tests unitarios (Vitest), junto al código; test-helpers.ts = fixtures
 docs/SPEC.md
 ```
 
@@ -77,7 +90,7 @@ docs/SPEC.md
 - **Finding** (ítem relevado): `id`, `type: "requirement" | "finding" | "risk"`, `description`,
   `impact: "low" | "medium" | "high"`, `status: "open" | "mitigated" | "closed"`, `owner?`
 
-Fechas en ISO (`YYYY-MM-DD`). "Hoy" se toma de `new Date()`; los datos de prueba deben
+Fechas en ISO (`YYYY-MM-DD`). "Hoy" es la fecha actual en horario de Argentina (`todayISO()` en `lib/dates.ts`); los datos de prueba deben
 generarse relativos a la fecha actual para que haya vencidas y próximas.
 
 ## Datos de prueba
@@ -118,6 +131,7 @@ Lógica:
 - Calcular métricas en el servidor y enviar al LLM un resumen estructurado (no el JSON crudo completo).
 - Con API key: llamar al modelo de `ANTHROPIC_MODEL`. Pedir que no invente datos que no estén en el input.
 - Sin API key o ante error/timeout (~15 s): devolver `report-template.ts`.
+- Los reportes con IA tienen límite de uso (por IP y global, `lib/rate-limit.ts`); al superarlo se devuelve la plantilla con `limited: true`.
 - La respuesta indica la fuente: `{ markdown, source: "ai" | "template" }`, y la UI lo muestra.
 
 ## UI
