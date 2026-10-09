@@ -1,9 +1,9 @@
-# CLAUDE.md — Status Board (Hackathon MVP)
+# CLAUDE.md — Status Board (MVP)
 
 ## Contexto
-Hackathon de un día. Deadline: **16:00 hs (Argentina)** con el código subido a GitHub.
+Proyecto de un día, con el código publicado en GitHub.
 
-**Challenge:** armar, con ayuda de IA, un tablero que centralice el estado de un proyecto
+**Objetivo:** armar, con ayuda de IA, un tablero que centralice el estado de un proyecto
 (tareas, pendientes, ítems relevados) usando datos de prueba, pensado para reemplazar
 el status report armado a mano.
 
@@ -76,7 +76,7 @@ docs/SPEC.md
   `impact: "low" | "medium" | "high"`, `status: "open" | "mitigated" | "closed"`, `owner?`
 
 Fechas en ISO (`YYYY-MM-DD`). "Hoy" se toma de `new Date()`; los datos de prueba deben
-generarse relativos a la fecha actual del hackathon para que haya vencidas y próximas.
+generarse relativos a la fecha actual para que haya vencidas y próximas.
 
 ## Datos de prueba
 Un proyecto ficticio realista (ej.: "Migración del portal de clientes" para un banco o retail):
