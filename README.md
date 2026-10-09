@@ -4,7 +4,7 @@ Tablero que centraliza el estado de un proyecto (tareas, pendientes de reunión 
 
 > Proyecto hecho en un día para un hackathon. Todos los datos son ficticios.
 
-**Demo:** _se publica en el paso de deploy (Vercel)_
+**Demo:** https://task-board-seven-alpha.vercel.app
 
 ![Resumen del tablero](docs/screenshots/resumen.png)
 
