@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ISODate, ReportResponse } from "@/lib/types";
@@ -106,6 +107,14 @@ export default function ReportPanel({ today }: { today: ISODate }) {
     showToast("Descargando status-report.md");
   };
 
+  // Print styles in globals.css leave only the report visible; the title becomes the PDF file name.
+  const print = () => {
+    const previousTitle = document.title;
+    document.title = `status-report-${today}`;
+    window.print();
+    document.title = previousTitle;
+  };
+
   return (
     <>
       <button
@@ -120,10 +129,10 @@ export default function ReportPanel({ today }: { today: ISODate }) {
         Generar status report
       </button>
 
-      {open && (
+      {open &&
+        createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-8"
-          style={{ background: "rgba(48,8,64,.5)", backdropFilter: "blur(2px)" }}
+          className="print-root fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(48,8,64,.5)] p-4 backdrop-blur-[2px] sm:p-8"
           onClick={() => setOpen(false)}
         >
           <div
@@ -133,7 +142,7 @@ export default function ReportPanel({ today }: { today: ISODate }) {
             className="report-pop w-full max-w-3xl rounded-[16px] bg-panel text-ink shadow-overlay"
             onClick={(e) => e.stopPropagation()}
           >
-            <header className="flex items-center gap-3 border-b border-line px-5 py-4">
+            <header className="flex items-center gap-3 border-b border-line px-5 py-4 print:hidden">
               <h2 id="report-title" className="t-card-title text-brand-dark">
                 Status report
               </h2>
@@ -175,12 +184,21 @@ export default function ReportPanel({ today }: { today: ISODate }) {
               )}
             </div>
 
-            <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4">
+            <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4 print:hidden">
               <button type="button" onClick={generate} disabled={state.status === "loading"} className={ghostButton}>
                 Regenerar
               </button>
               <button type="button" onClick={copy} disabled={state.status !== "done"} className={ghostButton}>
                 Copiar
+              </button>
+              <button
+                type="button"
+                onClick={print}
+                disabled={state.status !== "done"}
+                className={ghostButton}
+                title="Abre el diálogo de impresión; elegí «Guardar como PDF» para obtener el archivo"
+              >
+                Imprimir / PDF
               </button>
               <button
                 type="button"
@@ -193,13 +211,14 @@ export default function ReportPanel({ today }: { today: ISODate }) {
               </button>
             </footer>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
 
       {toast && (
         <div
           role="status"
-          className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-[10px] bg-brand-dark px-4 py-[10px] text-[13px] font-semibold text-white shadow-overlay"
+          className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-[10px] bg-brand-dark px-4 py-[10px] text-[13px] font-semibold text-white shadow-overlay print:hidden"
         >
           {toast}
         </div>
@@ -209,11 +228,11 @@ export default function ReportPanel({ today }: { today: ISODate }) {
 }
 
 function SourceBadge({ report, ms }: { report: ReportResponse; ms: number }) {
-  const seconds = (ms / 1000).toFixed(1);
+  const elapsed = ms < 1000 ? `${Math.max(1, Math.round(ms))} ms` : `${(ms / 1000).toFixed(1)} s`;
   if (report.source === "ai") {
     return (
       <span className="rounded-[20px] bg-brand-soft px-[10px] py-[3px] text-[10.5px] font-bold text-brand">
-        Generado con IA · {seconds} s
+        Generado con IA · {elapsed}
       </span>
     );
   }
@@ -222,7 +241,7 @@ function SourceBadge({ report, ms }: { report: ReportResponse; ms: number }) {
       className="rounded-[20px] bg-surface px-[10px] py-[3px] text-[10.5px] font-bold text-ink-soft"
       title="Sin API key configurada o la IA no respondió a tiempo"
     >
-      Generado por plantilla · {seconds} s
+      Generado por plantilla · {elapsed}
     </span>
   );
 }
