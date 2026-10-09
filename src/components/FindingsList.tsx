@@ -26,7 +26,7 @@ export default function FindingsList({ findings }: { findings: Finding[] }) {
         return (
           <section key={type} className="rounded-card border border-line bg-panel shadow-card">
             <header className="flex items-baseline justify-between gap-2 border-b border-line px-4 py-3">
-              <h3 className="t-card-title text-brand-dark">{FINDING_TYPE_LABEL[type]}</h3>
+              <h3 className="t-card-title text-heading">{FINDING_TYPE_LABEL[type]}</h3>
               <span className="t-secondary">
                 {open} abierto{open === 1 ? "" : "s"} de {items.length}
               </span>

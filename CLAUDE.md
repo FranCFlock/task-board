@@ -124,7 +124,8 @@ Lógica:
 - Tareas: tabla con filtros; vencidas en rojo, bloqueadas con su motivo.
 - Pendientes y Relevamiento: listas con badges de estado e impacto.
 - Botón destacado "Generar status report" que abre ReportPanel (copiar / descargar .md).
-- Responsive y prolijo, sin sobrediseñar.
+- Responsive y prolijo, sin sobrediseñar. En celular las tareas se muestran como tarjetas.
+- Tema claro/oscuro (clase `html.dark`, botón en el header, elección guardada en el navegador).
 
 ## ABM de tareas (agregado después del MVP)
 - Alta, edición y baja de **tareas** desde la pestaña Tareas, con formulario en modal y confirmación al eliminar.

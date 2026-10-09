@@ -14,7 +14,7 @@ export default function StatusChart({ tasksByStatus }: { tasksByStatus: Record<T
 
   return (
     <section className="rounded-card border border-line bg-panel p-4 shadow-card">
-      <h2 className="t-card-title text-brand-dark">Tareas por estado</h2>
+      <h2 className="t-card-title text-heading">Tareas por estado</h2>
       <p className="t-secondary">{total} tareas en total</p>
       <div className="mt-4 h-60">
         <ResponsiveContainer width="100%" height="100%">
@@ -50,7 +50,7 @@ export default function StatusChart({ tasksByStatus }: { tasksByStatus: Record<T
                 dataKey="count"
                 position="top"
                 className="text-mono"
-                style={{ fill: "var(--brand-dark)", fontSize: 13, fontWeight: 700 }}
+                style={{ fill: "var(--heading)", fontSize: 13, fontWeight: 700 }}
               />
             </Bar>
           </BarChart>

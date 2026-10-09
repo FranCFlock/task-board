@@ -17,9 +17,17 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 };
 
+// Runs before the first paint so the page never flashes the wrong theme.
+// The key must match THEME_KEY in components/ThemeToggle.tsx.
+const themeScript = `(function(){try{var s=localStorage.getItem("status-board:theme");var d=s?s==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;if(d)document.documentElement.classList.add("dark")}catch(e){}})()`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
+    // suppressHydrationWarning: the script above may add the "dark" class before React hydrates.
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );

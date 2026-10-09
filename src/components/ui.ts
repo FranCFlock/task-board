@@ -10,7 +10,7 @@ export const dangerButton =
   "inline-flex items-center justify-center gap-[7px] rounded-[9px] px-4 py-[9px] text-[13px] font-semibold text-white transition-[filter] hover:brightness-110 active:translate-y-px bg-[var(--state-blocked-bar)]";
 
 export const iconButton =
-  "grid size-[30px] place-items-center rounded-[6px] text-ink-faint transition-colors hover:bg-brand-soft hover:text-brand";
+  "grid size-[30px] place-items-center rounded-[6px] text-ink-faint transition-colors hover:bg-brand-soft hover:text-brand-text";
 
 export const fieldLabel = "text-[11px] font-bold uppercase tracking-[.5px] text-ink-faint";
 

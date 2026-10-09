@@ -12,6 +12,7 @@ import StatusChart from "@/components/StatusChart";
 import Tabs, { type TabId, type TabItem } from "@/components/Tabs";
 import TaskForm from "@/components/TaskForm";
 import TasksTable from "@/components/TasksTable";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useToast } from "@/components/Toast";
 import { ghostButton } from "@/components/ui";
 import { formatDate } from "@/lib/dates";
@@ -123,8 +124,9 @@ export default function Dashboard({ demo, today, active }: { demo: ProjectData; 
               {project.client} · {formatDate(project.startDate)} – {formatDate(project.endDate)}
             </p>
             <p className="mt-1 text-[12.5px] font-medium text-white/80">Actualizado al {formatDate(m.today)}</p>
-            <div className="mt-5">
+            <div className="mt-5 flex items-center gap-2">
               <ReportPanel today={m.today} tasks={tasks} />
+              <ThemeToggle />
             </div>
           </div>
           <div className="lg:w-96">
@@ -180,7 +182,7 @@ export default function Dashboard({ demo, today, active }: { demo: ProjectData; 
         message={
           dialog?.kind === "delete" && (
             <p>
-              ¿Eliminar <strong className="text-brand-dark">{dialog.task.title}</strong>? Esta acción no se puede deshacer
+              ¿Eliminar <strong className="text-heading">{dialog.task.title}</strong>? Esta acción no se puede deshacer
               (salvo restableciendo los datos de demo).
             </p>
           )

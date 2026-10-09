@@ -57,7 +57,7 @@ export default function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center gap-3 border-b border-line px-5 py-4 print:hidden">
-          <h2 id={titleId} className="t-card-title text-brand-dark">
+          <h2 id={titleId} className="t-card-title text-heading">
             {title}
           </h2>
           {headerExtra}

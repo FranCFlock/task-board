@@ -185,7 +185,7 @@ function Field({
       <span className={fieldLabel}>{label}</span>
       {children}
       {error && (
-        <span className="text-[12.5px] font-medium" style={{ color: "var(--state-blocked-fg)" }}>
+        <span className="text-[12.5px] font-medium" style={{ color: "var(--danger-text)" }}>
           {error}
         </span>
       )}

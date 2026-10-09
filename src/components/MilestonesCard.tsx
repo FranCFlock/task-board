@@ -17,14 +17,14 @@ export default function MilestonesCard({
 }) {
   return (
     <section className="rounded-card border border-line bg-panel p-4 shadow-card">
-      <h2 className="t-card-title text-brand-dark">Hitos</h2>
+      <h2 className="t-card-title text-heading">Hitos</h2>
 
       {next ? (
         <div className="mt-3 rounded-card bg-surface p-3">
           <div className="t-caption text-ink-faint">Próximo hito</div>
-          <div className="mt-1 font-semibold text-brand-dark">{next.milestone.name}</div>
+          <div className="mt-1 font-semibold text-heading">{next.milestone.name}</div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="rounded-[20px] bg-brand-soft px-2 py-[2px] text-[10.5px] font-bold text-brand">
+            <span className="rounded-[20px] bg-brand-soft px-2 py-[2px] text-[10.5px] font-bold text-brand-text">
               {daysLabel(next.daysLeft)}
             </span>
             <span className="t-secondary">{formatDate(next.milestone.dueDate)}</span>

@@ -18,7 +18,7 @@ const ALL = "all";
 const selectClass =
   "rounded-[8px] border border-line-strong bg-panel px-[11px] py-[9px] text-[13px] text-ink focus:border-brand focus:outline-2 focus:outline-brand-soft";
 
-const dangerText = { color: "var(--state-blocked-fg)" };
+const dangerText = { color: "var(--danger-text)" };
 
 function overdueLabel(days: number) {
   return days === 1 ? "Vencida hace 1 día" : `Vencida hace ${days} días`;
@@ -30,7 +30,7 @@ function PriorityPill({ priority }: { priority: Priority }) {
   return (
     <span
       className={`rounded-[20px] px-[11px] py-[3px] text-[11px] font-bold ${
-        priority === "high" ? "bg-brand-soft text-brand" : "bg-surface text-ink-soft"
+        priority === "high" ? "bg-brand-soft text-brand-text" : "bg-surface text-ink-soft"
       }`}
     >
       {PRIORITY_LABEL[priority]}
@@ -61,7 +61,7 @@ function DueInfo({ task, today }: { task: Task; today: ISODate }) {
         </div>
       )}
       {task.status === "done" && task.completedAt && (
-        <div className="text-[11px] font-bold" style={{ color: "var(--state-completed-fg)" }}>
+        <div className="text-[11px] font-bold" style={{ color: "var(--success-text)" }}>
           Completada el {formatDate(task.completedAt)}
         </div>
       )}

@@ -13,7 +13,7 @@ export default function KpiCard({ label, value, detail, dotColor }: KpiCardProps
         <span className="size-2 shrink-0 rounded-full" style={{ background: dotColor }} />
         {label}
       </div>
-      <div className="text-mono mt-2 text-[28px] font-extrabold leading-none text-brand-dark">{value}</div>
+      <div className="text-mono mt-2 text-[28px] font-extrabold leading-none text-heading">{value}</div>
       {detail && <div className="t-secondary mt-2">{detail}</div>}
     </div>
   );

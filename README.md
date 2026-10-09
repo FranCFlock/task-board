@@ -30,6 +30,10 @@ El PM abre el tablero y en un vistazo ve la salud del proyecto:
 
 ![Panel del status report](docs/screenshots/reporte.png)
 
+**Tema claro y oscuro** (sigue la preferencia del sistema y se puede cambiar con el botón del encabezado) y **diseño responsive**: en celular, las tareas se muestran como tarjetas.
+
+![Tema oscuro](docs/screenshots/tema-oscuro.png)
+
 ## Cómo correrlo
 
 Requisitos: Node.js 20 o superior.
@@ -101,4 +105,4 @@ La especificación funcional (modelo de datos, KPIs, reglas del semáforo y cont
 - **Login y usuarios**, con vistas por rol (PM, sponsor, equipo) y **multi-proyecto / multi-cliente**.
 - **Historial de reportes** y envío programado por mail o Teams.
 - **Notificaciones** ante cambios de semáforo o vencimientos.
-- **Tema oscuro** (los tokens ya lo soportan) y tests automatizados de métricas y semáforo.
+- **Tests automatizados** de métricas, semáforo y validación de tareas.

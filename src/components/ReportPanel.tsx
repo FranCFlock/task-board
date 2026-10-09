@@ -16,15 +16,15 @@ type State =
 
 // Markdown styled with design-system tokens (no typography plugin).
 const markdownComponents: Components = {
-  h1: ({ children }) => <h1 className="t-section mb-1 text-brand-dark">{children}</h1>,
-  h2: ({ children }) => <h2 className="t-card-title mb-2 mt-6 text-brand-dark">{children}</h2>,
-  h3: ({ children }) => <h3 className="mb-2 mt-4 font-bold text-brand-dark">{children}</h3>,
+  h1: ({ children }) => <h1 className="t-section mb-1 text-heading">{children}</h1>,
+  h2: ({ children }) => <h2 className="t-card-title mb-2 mt-6 text-heading">{children}</h2>,
+  h3: ({ children }) => <h3 className="mb-2 mt-4 font-bold text-heading">{children}</h3>,
   p: ({ children }) => <p className="my-2">{children}</p>,
   ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5 marker:text-brand-2">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-brand-2">{children}</ol>,
-  strong: ({ children }) => <strong className="font-bold text-brand-dark">{children}</strong>,
+  strong: ({ children }) => <strong className="font-bold text-heading">{children}</strong>,
   a: ({ children, href }) => (
-    <a href={href} className="text-brand underline" target="_blank" rel="noreferrer">
+    <a href={href} className="text-brand-text underline" target="_blank" rel="noreferrer">
       {children}
     </a>
   ),
@@ -98,10 +98,14 @@ export default function ReportPanel({ today, tasks }: { today: ISODate; tasks: T
 
   // Print styles in globals.css leave only the report visible; the title becomes the PDF file name.
   const print = () => {
+    const root = document.documentElement;
+    const wasDark = root.classList.contains("dark");
     const previousTitle = document.title;
+    root.classList.remove("dark"); // paper is white: always print with the light theme
     document.title = `status-report-${today}`;
     window.print();
     document.title = previousTitle;
+    if (wasDark) root.classList.add("dark");
   };
 
   return (
@@ -157,13 +161,13 @@ export default function ReportPanel({ today, tasks }: { today: ISODate; tasks: T
         {state.status === "loading" && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <span className="size-8 animate-spin rounded-full border-[3px] border-brand-soft border-t-brand" />
-            <p className="font-semibold text-brand-dark">Generando el status report…</p>
+            <p className="font-semibold text-heading">Generando el status report…</p>
             <p className="t-secondary">Puede tardar unos segundos.</p>
           </div>
         )}
         {state.status === "error" && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <p className="font-semibold text-brand-dark">No se pudo generar el reporte.</p>
+            <p className="font-semibold text-heading">No se pudo generar el reporte.</p>
             <button type="button" onClick={generate} className={primaryButton}>
               Reintentar
             </button>
@@ -187,7 +191,7 @@ function SourceBadge({ report, ms }: { report: ReportResponse; ms: number }) {
   const elapsed = ms < 1000 ? `${Math.max(1, Math.round(ms))} ms` : `${(ms / 1000).toFixed(1)} s`;
   if (report.source === "ai") {
     return (
-      <span className="rounded-[20px] bg-brand-soft px-[10px] py-[3px] text-[10.5px] font-bold text-brand">
+      <span className="rounded-[20px] bg-brand-soft px-[10px] py-[3px] text-[10.5px] font-bold text-brand-text">
         Generado con IA · {elapsed}
       </span>
     );

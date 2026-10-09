@@ -71,6 +71,8 @@ Los umbrales (`RED_OVERDUE_PCT`, `YELLOW_OVERDUE_PCT`) son constantes en `metric
   - **Tareas:** tabla con filtros por estado, responsable, prioridad y "Solo vencidas". Primero las abiertas por vencimiento y al final las completadas. Las vencidas muestran "Vencida hace N días" en rojo; las bloqueadas, su motivo. Incluye el ABM (ver sección 6.1).
   - **Pendientes:** agrupados por reunión (la más reciente primero), con estado Abierto / Vencido / Hecho.
   - **Relevamiento:** agrupado en Riesgos, Hallazgos y Requerimientos; primero los abiertos y de mayor impacto.
+- **Tema claro / oscuro:** sigue la preferencia del sistema; el botón del encabezado lo cambia y la elección se recuerda en el navegador (`localStorage`, clave `status-board:theme`). Se aplica antes del primer render para evitar parpadeos. Al imprimir el reporte siempre se usa el tema claro. En oscuro, los textos que el design system deja muy tenues (títulos, etiquetas, texto de marca y rojo de alerta) usan tonos más claros derivados de sus mismos tokens, para mantener un contraste de al menos 4,5:1.
+- **Responsive:** en pantallas angostas (< 768 px) la lista de tareas pasa de tabla a tarjetas con la misma información y acciones; el resto de la interfaz se apila sin scroll horizontal.
 - **Panel del reporte:** muestra el Markdown renderizado, la fuente (IA o plantilla) y el tiempo de generación. Permite copiar, descargar (`status-report-AAAA-MM-DD.md`), imprimir o guardar como PDF (al imprimir solo sale el reporte, con el nombre de archivo `status-report-AAAA-MM-DD`) y regenerar.
 
 ### 6.1 ABM de tareas

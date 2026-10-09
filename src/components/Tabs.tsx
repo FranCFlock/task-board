@@ -24,8 +24,8 @@ export default function Tabs({ tabs, active }: { tabs: TabItem[]; active: string
               aria-current={isActive ? "page" : undefined}
               className={`flex shrink-0 items-center gap-2 border-b-2 px-[18px] py-[15px] text-[14px] font-semibold transition-colors ${
                 isActive
-                  ? "border-brand text-brand-dark"
-                  : "border-transparent text-ink-soft hover:text-brand-dark"
+                  ? "border-brand text-heading"
+                  : "border-transparent text-ink-soft hover:text-heading"
               }`}
             >
               {tab.label}

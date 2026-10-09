@@ -24,7 +24,7 @@ export default function ActionItemsList({ items, today }: { items: ActionItem[];
       {groups.map(([name, meeting]) => (
         <section key={name} className="rounded-card border border-line bg-panel shadow-card">
           <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
-            <h3 className="t-card-title text-brand-dark">{name}</h3>
+            <h3 className="t-card-title text-heading">{name}</h3>
             <span className="t-secondary">Reunión del {formatDate(meeting.date)}</span>
           </header>
           <ul>
@@ -47,7 +47,7 @@ export default function ActionItemsList({ items, today }: { items: ActionItem[];
                     <div className="flex items-center gap-3">
                       <span
                         className={`whitespace-nowrap text-[12.5px] tabular-nums ${overdue ? "font-bold" : "text-ink-soft"}`}
-                        style={overdue ? { color: "var(--state-blocked-fg)" } : undefined}
+                        style={overdue ? { color: "var(--danger-text)" } : undefined}
                       >
                         Vence {formatDate(item.dueDate)}
                       </span>

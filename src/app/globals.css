@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the html.dark class, like the design-system tokens. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Flock Design System — design tokens v1.1 */
 :root {
   /* Brand */
@@ -51,6 +54,13 @@
   --state-completed-bg: #dcf7e6;
   --state-completed-fg: #15803d;
   --state-completed-bar: #16a34a;
+
+  /* Semantic aliases (not in the DS): headings and state-colored text that sits directly on panels. */
+  --heading: var(--brand-dark);
+  --danger-text: var(--state-blocked-fg);
+  --success-text: var(--state-completed-fg);
+  --brand-text: var(--brand);
+  --caption: var(--text-faint);
 }
 
 html.dark {
@@ -74,6 +84,18 @@ html.dark {
 
   --shadow:    0 1px 3px rgba(0,0,0,.40), 0 1px 2px rgba(0,0,0,.30);
   --shadow-lg: 0 22px 50px -16px rgba(0,0,0,.60);
+
+  /* The DS dark values are too dim for small text on panels (measured contrast: captions ~2:1,
+     brand text ~2.9:1, red ~3.4:1; AA needs 4.5:1). Text roles get brighter values derived from
+     DS tokens: headings use the text color, captions the secondary text color, and the brand and
+     danger text colors are their DS tokens lightened with white. Chip backgrounds are unchanged. */
+  --heading: var(--text);
+  --caption: var(--text-soft);
+  --brand-text: color-mix(in srgb, var(--brand-2) 70%, white);
+  --danger-text: color-mix(in srgb, var(--state-blocked-bar) 70%, white);
+  --success-text: var(--state-completed-bar);
+
+  color-scheme: dark; /* native controls: selects, date picker, scrollbars */
 }
 
 /* Expose tokens as Tailwind utilities (bg-panel, text-ink-soft, border-line, shadow-card...) */
@@ -86,9 +108,11 @@ html.dark {
   --color-brand-softer: var(--brand-softer);
   --color-surface: var(--surface);
   --color-panel: var(--panel);
+  --color-heading: var(--heading);
   --color-ink: var(--text);
   --color-ink-soft: var(--text-soft);
-  --color-ink-faint: var(--text-faint);
+  --color-ink-faint: var(--caption);
+  --color-brand-text: var(--brand-text);
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
   --radius-card: var(--radius);
@@ -103,6 +127,9 @@ body {
   font-size: 14px;
   line-height: 1.45;
 }
+
+/* Page canvas: DS "Softer" in light, DS --bg in dark. */
+html.dark body { background: var(--bg); }
 
 /* Type scale */
 .t-display { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
