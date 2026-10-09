@@ -108,8 +108,19 @@ El período son los últimos 14 días. Como las tareas no guardan su fecha de ci
 2. Si existe `ANTHROPIC_API_KEY`, llama al modelo de `ANTHROPIC_MODEL` (por defecto `claude-sonnet-5-5`) con el prompt de [`report-prompt.ts`](../src/lib/report-prompt.ts), con esfuerzo bajo y un timeout de 15 s. El prompt prohíbe inventar datos que no estén en el resumen.
 3. Si no hay key, o la llamada falla, se agota el tiempo, el modelo rechaza el pedido o no devuelve texto, responde con [`report-template.ts`](../src/lib/report-template.ts) y `source: "template"`. El motivo queda en el log del servidor.
 
+### Límite de uso
+
+Cada reporte con IA tiene costo, y el endpoint es público. Por eso las llamadas a la IA se limitan ([`src/lib/rate-limit.ts`](../src/lib/rate-limit.ts)):
+
+- **Por IP:** 6 reportes cada 10 minutos (`REPORT_AI_LIMIT_PER_IP`).
+- **Global:** 60 reportes por hora entre todos los visitantes (`REPORT_AI_LIMIT_GLOBAL`).
+- Al superar el límite el endpoint **no falla**: responde `200` con el reporte por plantilla (gratis) y `limited: true`. El panel lo indica en el tooltip del badge.
+- Los pedidos de más de 200 KB se rechazan con `413`.
+- Es un límite **aproximado**: el contador vive en memoria de cada instancia del servidor, así que se reinicia cuando Vercel la recicla y no se comparte entre instancias. Frena el abuso casual; el tope real del gasto es el límite mensual configurado en la Claude Console.
+
 ## 8. Seguridad
 
 - La API key solo se lee en `src/app/api/report/route.ts` (del lado del servidor) y nunca se envía al navegador.
+- Las llamadas a la IA tienen límite de uso por IP y global (ver "Límite de uso") y se recomienda fijar un límite de gasto mensual en la Claude Console.
 - `.env.local` está en `.gitignore`; el repo solo incluye `.env.example`.
 - El Markdown del reporte se renderiza con `react-markdown`, que no ejecuta HTML embebido.

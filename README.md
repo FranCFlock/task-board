@@ -58,7 +58,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL=claude-sonnet-5-5
 ```
 
-La key se obtiene en la [Claude Console](https://platform.claude.com) (Settings → API Keys). Con la key configurada, el mismo botón genera el reporte con Claude y el panel muestra "Generado con IA". Si la key falta, es inválida o la IA no responde en 15 segundos, la app usa la plantilla automáticamente.
+La key se obtiene en la [Claude Console](https://platform.claude.com) (Settings → API Keys). Conviene usar una key exclusiva para este proyecto y fijar un límite de gasto mensual en la Console. Con la key configurada, el mismo botón genera el reporte con Claude y el panel muestra "Generado con IA". Si la key falta, es inválida o la IA no responde en 15 segundos, la app usa la plantilla automáticamente. Para cuidar el gasto, los reportes con IA tienen un límite de uso (6 cada 10 minutos por IP y 60 por hora en total); al superarlo, el reporte sale igual, con la plantilla.
 
 ## Uso de IA
 
